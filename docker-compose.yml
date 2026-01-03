@@ -1,0 +1,19 @@
+services:
+  app:
+    build: .
+    container_name: collaboratorisost
+    restart: unless-stopped
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=app.py
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.collaboratorisost.rule=Host(`collaboratori.mattiagirellini.com`)"
+      - "traefik.http.routers.collaboratorisost.tls=true"
+      - "traefik.http.routers.collaboratorisost.tls.certresolver=letsencrypt"
+      - "traefik.http.services.collaboratorisost.loadbalancer.server.port=5000"
+
+networks:
+  web:

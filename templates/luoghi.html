@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Gestione Luoghi{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Gestione Luoghi di Competenza</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Aggiungi Nuovo Luogo</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome Luogo</label>
+                        <input type="text" class="form-control" id="nome" name="nome" placeholder="es. Piano Terra, Aula Magna, ecc." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descrizione" class="form-label">Descrizione</label>
+                        <textarea class="form-control" id="descrizione" name="descrizione" rows="3" placeholder="Descrizione del luogo (opzionale)"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="min_collaboratori" class="form-label">Numero Minimo Collaboratori</label>
+                        <input type="number" class="form-control" id="min_collaboratori" name="min_collaboratori" value="1" min="0" required>
+                        <small class="text-muted">Numero minimo di collaboratori che devono essere presenti in questo luogo</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Aggiungi Luogo</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Elenco Luoghi</h5>
+            </div>
+            <div class="card-body">
+                {% if luoghi %}
+                    {% for luogo in luoghi %}
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h6>{{ luogo.nome }}</h6>
+                            {% if luogo.descrizione %}
+                            <p class="text-muted mb-2">{{ luogo.descrizione }}</p>
+                            {% endif %}
+                            <p class="mb-2"><strong>Min. collaboratori:</strong> {{ luogo.get('min_collaboratori', 1) }}</p>
+                            <form method="POST" action="{{ url_for('elimina_luogo', id=luogo.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Sei sicuro di voler eliminare questo luogo?')">Elimina</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">Nessun luogo inserito</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

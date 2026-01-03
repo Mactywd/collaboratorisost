@@ -1,0 +1,81 @@
+Given the following schedule:
+
+{
+    "Bandini 1": {
+        "Caternicchia Pietro": {
+            "start": "10:48",
+            "end": "18:00"
+        },
+        "Fanetti Alessandra": {
+            "start": "7:30",
+            "partial_end": "10:48",
+            "move_back_to": "Bar",
+            "end": "14:42"
+        }
+    },
+    "Bandini 2": {
+        "Egizio Elia": {
+            "start": "7:54",
+            "end": "14:57"
+        }
+    },
+    "Bar": {
+        "Sposito Giuseppe": {
+            "start": "7:54",
+            "end": "14:57"
+        }
+    },
+    "Ingresso": {
+        "Kodra Mediha": {
+            "start": "7:54",
+            "end": "14:57"
+        },
+        "Manfredini Simona": {
+            "start": "7:54",
+            "end": "14:57"
+        }
+    },
+    "Laboratori": {
+        "De Angelis Irene": {
+            "start": "7:54",
+            "end": "14:57"
+        }
+    },
+    "Palestra": {
+        "Pragliola Maria": {
+            "start": "10:00",
+            "end": "15:00"
+        }
+    },
+    "Pendolo": {
+        "Galluzzi Carla": {
+            "start": "7:54",
+            "end": "14:57"
+        }
+    },
+    "Portineria": {
+        "Braccagni Simona": {
+            "start": "8:00",
+            "end": "14:00"
+        }
+    },
+    "Segreteria": {
+        "Sani Stefania": {
+            "start": "10:48",
+            "end": "18:00"
+        }
+    }
+}
+
+Output should be:
+
+```
+<h2>Bandini 1</h2>
+<p>Caternicchia Pietro</p>
+<ul>
+    <li>Entra alle <strong>10:48</strong>, esce alle <strong>18:00</strong></li>
+    <li>Entra alle <strong>7:30</strong>, alle <strong>10:48</strong> ritorna al <strong>Bar</strong>, esce alle <strong>14:42</strong>
+</ul>
+
+and so on
+```

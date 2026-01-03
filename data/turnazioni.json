@@ -1,0 +1,83 @@
+[
+  {
+    "id": 1,
+    "collaboratore_id": 1,
+    "giorno_settimana": "martedi",
+    "mese": "novembre",
+    "anno": 2025,
+    "fa_pomeriggio": true,
+    "ora_ingresso_alternativa": "10:48"
+  },
+  {
+    "id": 2,
+    "collaboratore_id": 2,
+    "giorno_settimana": "martedi",
+    "mese": "gennaio",
+    "anno": 2025,
+    "fa_pomeriggio": true,
+    "ora_ingresso_alternativa": "10:48"
+  },
+  {
+    "id": 3,
+    "collaboratore_id": 3,
+    "giorno_settimana": "martedi",
+    "mese": "febbraio",
+    "anno": 2025,
+    "fa_pomeriggio": true,
+    "ora_ingresso_alternativa": "10:48"
+  },
+  {
+    "id": 4,
+    "collaboratore_id": 4,
+    "giorno_settimana": "martedi",
+    "mese": "giugno",
+    "anno": 2025,
+    "fa_pomeriggio": true,
+    "ora_ingresso_alternativa": "10:48"
+  },
+  {
+    "id": 5,
+    "collaboratore_id": 5,
+    "giorno_settimana": "martedi",
+    "mese": "maggio",
+    "anno": 2025,
+    "fa_pomeriggio": true,
+    "ora_ingresso_alternativa": "10:48"
+  },
+  {
+    "id": 6,
+    "collaboratore_id": 6,
+    "giorno_settimana": "martedi",
+    "mese": "aprile",
+    "anno": 2025,
+    "fa_pomeriggio": true,
+    "ora_ingresso_alternativa": "10:48"
+  },
+  {
+    "id": 7,
+    "collaboratore_id": 8,
+    "giorno_settimana": "martedi",
+    "mese": "ottobre",
+    "anno": 2025,
+    "fa_pomeriggio": true,
+    "ora_ingresso_alternativa": "10:48"
+  },
+  {
+    "id": 8,
+    "collaboratore_id": 9,
+    "giorno_settimana": "martedi",
+    "mese": "dicembre",
+    "anno": 2025,
+    "fa_pomeriggio": true,
+    "ora_ingresso_alternativa": "10:48"
+  },
+  {
+    "id": 9,
+    "collaboratore_id": 11,
+    "giorno_settimana": "martedi",
+    "mese": "marzo",
+    "anno": 2025,
+    "fa_pomeriggio": true,
+    "ora_ingresso_alternativa": "10:48"
+  }
+]

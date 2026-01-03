@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Gestione Coperture Fisse{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Gestione Coperture Fisse</h1>
+        <p>Configura quando un collaboratore copre regolarmente un altro luogo in determinati giorni (es. il collaboratore del posto Y copre il posto X tutti i venerdì)</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Aggiungi Copertura Fissa</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="collaboratore_id" class="form-label">Collaboratore che copre</label>
+                        <select class="form-select" id="collaboratore_id" name="collaboratore_id" required>
+                            <option value="">Seleziona un collaboratore</option>
+                            {% for collaboratore in collaboratori %}
+                            <option value="{{ collaboratore.id }}">
+                                {{ collaboratore.nome }} {{ collaboratore.cognome }}
+                                {% for luogo in luoghi %}
+                                    {% if luogo.id == collaboratore.luogo_id %}
+                                        ({{ luogo.nome }})
+                                    {% endif %}
+                                {% endfor %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="giorno_settimana" class="form-label">Giorno della Settimana</label>
+                        <select class="form-select" id="giorno_settimana" name="giorno_settimana" required>
+                            <option value="">Seleziona un giorno</option>
+                            <option value="lunedi">Lunedì</option>
+                            <option value="martedi">Martedì</option>
+                            <option value="mercoledi">Mercoledì</option>
+                            <option value="giovedi">Giovedì</option>
+                            <option value="venerdi">Venerdì</option>
+                            <option value="sabato">Sabato</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="luogo_coperto_id" class="form-label">Luogo da Coprire</label>
+                        <select class="form-select" id="luogo_coperto_id" name="luogo_coperto_id" required>
+                            <option value="">Seleziona un luogo</option>
+                            {% for luogo in luoghi %}
+                            <option value="{{ luogo.id }}">{{ luogo.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Aggiungi Copertura</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Elenco Coperture Fisse</h5>
+            </div>
+            <div class="card-body">
+                {% if coperture %}
+                    {% for copertura in coperture %}
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <p class="mb-1">
+                                <strong>Giorno:</strong> {{ copertura.giorno_settimana.capitalize() }}<br>
+                                <strong>Collaboratore:</strong>
+                                {% for c in collaboratori %}
+                                    {% if c.id == copertura.collaboratore_id %}
+                                        {{ c.nome }} {{ c.cognome }}
+                                        {% for luogo in luoghi %}
+                                            {% if luogo.id == c.luogo_id %}
+                                                (da {{ luogo.nome }})
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                                <br>
+                                <strong>Copre il luogo:</strong>
+                                {% for luogo in luoghi %}
+                                    {% if luogo.id == copertura.luogo_coperto_id %}
+                                        {{ luogo.nome }}
+                                    {% endif %}
+                                {% endfor %}
+                            </p>
+                            <form method="POST" action="{{ url_for('elimina_copertura', id=copertura.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Sei sicuro di voler eliminare questa copertura?')">Elimina</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">Nessuna copertura fissa configurata</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

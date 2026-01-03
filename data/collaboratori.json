@@ -1,0 +1,372 @@
+[
+  {
+    "id": 1,
+    "nome": "Pietro",
+    "cognome": "Caternicchia",
+    "fisso_nel_luogo": false,
+    "orari_settimanali": {
+      "lunedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "martedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "mercoledi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "giovedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "venerdi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      }
+    },
+    "luogo_id": 1
+  },
+  {
+    "id": 2,
+    "nome": "Elia",
+    "cognome": "Egizio",
+    "fisso_nel_luogo": false,
+    "orari_settimanali": {
+      "lunedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "martedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "mercoledi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "giovedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "venerdi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      }
+    },
+    "luogo_id": 2
+  },
+  {
+    "id": 3,
+    "nome": "Alessandra",
+    "cognome": "Fanetti",
+    "fisso_nel_luogo": false,
+    "orari_settimanali": {
+      "lunedi": {
+        "inizio": "7:30",
+        "fine": "14:42"
+      },
+      "martedi": {
+        "inizio": "7:30",
+        "fine": "14:42"
+      },
+      "mercoledi": {
+        "inizio": "7:30",
+        "fine": "14:42"
+      },
+      "giovedi": {
+        "inizio": "7:30",
+        "fine": "14:42"
+      },
+      "venerdi": {
+        "inizio": "7:30",
+        "fine": "14:42"
+      }
+    },
+    "luogo_id": 3
+  },
+  {
+    "id": 4,
+    "nome": "Giuseppe",
+    "cognome": "Sposito",
+    "fisso_nel_luogo": false,
+    "orari_settimanali": {
+      "lunedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "martedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "mercoledi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "giovedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "venerdi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      }
+    },
+    "luogo_id": 3
+  },
+  {
+    "id": 5,
+    "nome": "Mediha",
+    "cognome": "Kodra",
+    "fisso_nel_luogo": false,
+    "orari_settimanali": {
+      "lunedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "martedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "mercoledi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "giovedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "venerdi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      }
+    },
+    "luogo_id": 4
+  },
+  {
+    "id": 6,
+    "nome": "Simona",
+    "cognome": "Manfredini",
+    "fisso_nel_luogo": false,
+    "orari_settimanali": {
+      "lunedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "martedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "mercoledi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "giovedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "venerdi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      }
+    },
+    "luogo_id": 4
+  },
+  {
+    "id": 7,
+    "nome": "Gabriella",
+    "cognome": "Pietrini",
+    "fisso_nel_luogo": false,
+    "orari_settimanali": {
+      "lunedi": {
+        "inizio": "10:30",
+        "fine": "16:30"
+      },
+      "mercoledi": {
+        "inizio": "8:30",
+        "fine": "14:30"
+      },
+      "giovedi": {
+        "inizio": "8:30",
+        "fine": "14:30"
+      },
+      "venerdi": {
+        "inizio": "8:30",
+        "fine": "14:30"
+      }
+    },
+    "luogo_id": 5
+  },
+  {
+    "id": 8,
+    "nome": "Lucia",
+    "cognome": "Caprioli",
+    "fisso_nel_luogo": false,
+    "orari_settimanali": {
+      "lunedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "martedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "mercoledi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "giovedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "venerdi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      }
+    },
+    "luogo_id": 6
+  },
+  {
+    "id": 9,
+    "nome": "Angelis Irene",
+    "cognome": "De",
+    "fisso_nel_luogo": false,
+    "orari_settimanali": {
+      "lunedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "martedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "mercoledi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "giovedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "venerdi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      }
+    },
+    "luogo_id": 6
+  },
+  {
+    "id": 10,
+    "nome": "Maria",
+    "cognome": "Pragliola",
+    "fisso_nel_luogo": true,
+    "orari_settimanali": {
+      "lunedi": {
+        "inizio": "10:00",
+        "fine": "15:00"
+      },
+      "martedi": {
+        "inizio": "10:00",
+        "fine": "15:00"
+      },
+      "mercoledi": {
+        "inizio": "10:00",
+        "fine": "15:00"
+      },
+      "giovedi": {
+        "inizio": "10:00",
+        "fine": "15:00"
+      },
+      "venerdi": {
+        "inizio": "14:00",
+        "fine": "18:00"
+      }
+    },
+    "luogo_id": 7
+  },
+  {
+    "id": 11,
+    "nome": "Carla",
+    "cognome": "Galluzzi",
+    "fisso_nel_luogo": false,
+    "orari_settimanali": {
+      "lunedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "martedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "mercoledi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "giovedi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      },
+      "venerdi": {
+        "inizio": "7:54",
+        "fine": "14:57"
+      }
+    },
+    "luogo_id": 8
+  },
+  {
+    "id": 12,
+    "nome": "Simona",
+    "cognome": "Braccagni",
+    "fisso_nel_luogo": true,
+    "orari_settimanali": {
+      "lunedi": {
+        "inizio": "8:00",
+        "fine": "14:00"
+      },
+      "martedi": {
+        "inizio": "8:00",
+        "fine": "14:00"
+      },
+      "mercoledi": {
+        "inizio": "8:00",
+        "fine": "14:00"
+      },
+      "giovedi": {
+        "inizio": "8:00",
+        "fine": "14:00"
+      }
+    },
+    "luogo_id": 9
+  },
+  {
+    "id": 13,
+    "nome": "Stefania",
+    "cognome": "Sani",
+    "fisso_nel_luogo": false,
+    "orari_settimanali": {
+      "lunedi": {
+        "inizio": "8:18",
+        "fine": "15:00"
+      },
+      "martedi": {
+        "inizio": "10:48",
+        "fine": "18:00"
+      },
+      "mercoledi": {
+        "inizio": "8:18",
+        "fine": "15:00"
+      },
+      "giovedi": {
+        "inizio": "8:18",
+        "fine": "15:00"
+      },
+      "venerdi": {
+        "inizio": "10:48",
+        "fine": "18:00"
+      }
+    },
+    "luogo_id": 10,
+    "luogo_secondario_id": 9
+  }
+]

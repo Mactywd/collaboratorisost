@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "collaboratore_id": 3,
+    "giorno_settimana": "venerdi",
+    "luogo_coperto_id": 9
+  },
+  {
+    "id": 2,
+    "collaboratore_id": 7,
+    "giorno_settimana": "venerdi",
+    "luogo_coperto_id": 3
+  }
+]

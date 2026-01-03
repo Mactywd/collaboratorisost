@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Gestione Sostituzioni{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Gestione Sostituzioni Collaboratori Scolastici</h1>
+        <p class="lead">Sistema per la gestione delle sostituzioni dei collaboratori scolastici</p>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Luoghi</h5>
+                <p class="card-text">Gestisci i luoghi di competenza dei collaboratori</p>
+                <a href="{{ url_for('luoghi') }}" class="btn btn-primary">Vai</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Collaboratori</h5>
+                <p class="card-text">Gestisci i collaboratori e i loro orari settimanali</p>
+                <a href="{{ url_for('collaboratori') }}" class="btn btn-primary">Vai</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Coperture Fisse</h5>
+                <p class="card-text">Configura quando un collaboratore copre un altro luogo</p>
+                <a href="{{ url_for('coperture_fisse') }}" class="btn btn-primary">Vai</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Orari Pomeriggio</h5>
+                <p class="card-text">Configura gli orari del pomeriggio per ogni giorno</p>
+                <a href="{{ url_for('orari_pomeriggio') }}" class="btn btn-primary">Vai</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Turnazioni</h5>
+                <p class="card-text">Imposta le turnazioni mensili dei collaboratori</p>
+                <a href="{{ url_for('turnazioni') }}" class="btn btn-primary">Vai</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Assenze</h5>
+                <p class="card-text">Registra le assenze dei collaboratori</p>
+                <a href="{{ url_for('assenze') }}" class="btn btn-primary">Vai</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card border-success">
+            <div class="card-body">
+                <h5 class="card-title">Genera Sostituzioni</h5>
+                <p class="card-text">Genera le sostituzioni in base alle assenze</p>
+                <a href="{{ url_for('genera') }}" class="btn btn-success">Genera</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

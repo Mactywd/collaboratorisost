@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Gestione Assenze{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Gestione Assenze</h1>
+        <p>Registra le assenze dei collaboratori giorno per giorno</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Aggiungi Assenza</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="collaboratore_id" class="form-label">Collaboratore</label>
+                        <select class="form-select" id="collaboratore_id" name="collaboratore_id" required>
+                            <option value="">Seleziona un collaboratore</option>
+                            {% for collaboratore in collaboratori %}
+                            <option value="{{ collaboratore.id }}">{{ collaboratore.nome }} {{ collaboratore.cognome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="data" class="form-label">Data</label>
+                        <input type="date" class="form-control" id="data" name="data" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="tutto_giorno" name="tutto_giorno" checked onchange="toggleOrariAssenza()">
+                            <label class="form-check-label" for="tutto_giorno">
+                                Assente tutto il giorno
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="orari_assenza_div" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="ora_inizio" class="form-label">Assente dalle ore</label>
+                                <input type="time" class="form-control" id="ora_inizio" name="ora_inizio">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="ora_fine" class="form-label">Alle ore</label>
+                                <input type="time" class="form-control" id="ora_fine" name="ora_fine">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Aggiungi Assenza</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Elenco Assenze</h5>
+            </div>
+            <div class="card-body">
+                {% if assenze %}
+                    <div style="max-height: 600px; overflow-y: auto;">
+                        {% for assenza in assenze|sort(attribute='data', reverse=True) %}
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <h6>
+                                    {% for c in collaboratori %}
+                                        {% if c.id == assenza.collaboratore_id %}
+                                            {{ c.nome }} {{ c.cognome }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </h6>
+                                <p class="mb-1">
+                                    <strong>Data:</strong> {{ assenza.data }}<br>
+                                    {% if assenza.tutto_giorno %}
+                                        <strong>Tipo:</strong> Tutto il giorno
+                                    {% else %}
+                                        <strong>Tipo:</strong> Parziale (dalle {{ assenza.ora_inizio }} alle {{ assenza.ora_fine }})
+                                    {% endif %}
+                                </p>
+                                <form method="POST" action="{{ url_for('elimina_assenza', id=assenza.id) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Sei sicuro di voler eliminare questa assenza?')">Elimina</button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Nessuna assenza registrata</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleOrariAssenza() {
+    const checkbox = document.getElementById('tutto_giorno');
+    const div = document.getElementById('orari_assenza_div');
+    div.style.display = checkbox.checked ? 'none' : 'block';
+}
+</script>
+{% endblock %}

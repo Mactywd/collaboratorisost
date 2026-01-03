@@ -1,0 +1,12 @@
+{
+  "martedi": {
+    "attivo": true,
+    "ora_fine": "18:00",
+    "num_collaboratori": 2
+  },
+  "venerdi": {
+    "attivo": true,
+    "ora_fine": "18:00",
+    "num_collaboratori": 4
+  }
+}

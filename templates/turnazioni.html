@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Gestione Turnazioni{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Gestione Turnazioni</h1>
+        <p>Imposta le turnazioni mensili per i collaboratori (es. un collaboratore fa il pomeriggio il martedì nel mese di gennaio)</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Aggiungi Turnazione</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="collaboratore_id" class="form-label">Collaboratore</label>
+                        <select class="form-select" id="collaboratore_id" name="collaboratore_id" required>
+                            <option value="">Seleziona un collaboratore</option>
+                            {% for collaboratore in collaboratori %}
+                            <option value="{{ collaboratore.id }}">{{ collaboratore.nome }} {{ collaboratore.cognome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="giorno_settimana" class="form-label">Giorno della Settimana</label>
+                        <select class="form-select" id="giorno_settimana" name="giorno_settimana" required>
+                            <option value="">Seleziona un giorno</option>
+                            <option value="lunedi">Lunedì</option>
+                            <option value="martedi">Martedì</option>
+                            <option value="mercoledi">Mercoledì</option>
+                            <option value="giovedi">Giovedì</option>
+                            <option value="venerdi">Venerdì</option>
+                            <option value="sabato">Sabato</option>
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="mese" class="form-label">Mese</label>
+                            <select class="form-select" id="mese" name="mese" required>
+                                <option value="">Seleziona un mese</option>
+                                <option value="gennaio">Gennaio</option>
+                                <option value="febbraio">Febbraio</option>
+                                <option value="marzo">Marzo</option>
+                                <option value="aprile">Aprile</option>
+                                <option value="maggio">Maggio</option>
+                                <option value="giugno">Giugno</option>
+                                <option value="luglio">Luglio</option>
+                                <option value="agosto">Agosto</option>
+                                <option value="settembre">Settembre</option>
+                                <option value="ottobre">Ottobre</option>
+                                <option value="novembre">Novembre</option>
+                                <option value="dicembre">Dicembre</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="anno" class="form-label">Anno</label>
+                            <input type="number" class="form-control" id="anno" name="anno" value="2025" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="fa_pomeriggio" name="fa_pomeriggio" onchange="toggleOrarioIngresso()">
+                            <label class="form-check-label" for="fa_pomeriggio">
+                                Fa il pomeriggio (entra dopo)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="ora_ingresso_div" style="display: none;">
+                        <label for="ora_ingresso_alternativa" class="form-label">Ora ingresso alternativa</label>
+                        <input type="time" class="form-control" id="ora_ingresso_alternativa" name="ora_ingresso_alternativa">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Aggiungi Turnazione</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Elenco Turnazioni</h5>
+            </div>
+            <div class="card-body">
+                {% if turnazioni %}
+                    {% for turnazione in turnazioni %}
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h6>
+                                {% for c in collaboratori %}
+                                    {% if c.id == turnazione.collaboratore_id %}
+                                        {{ c.nome }} {{ c.cognome }}
+                                    {% endif %}
+                                {% endfor %}
+                            </h6>
+                            <p class="mb-1">
+                                <strong>Giorno:</strong> {{ turnazione.giorno_settimana.capitalize() }}<br>
+                                <strong>Periodo:</strong> {{ turnazione.mese.capitalize() }} {{ turnazione.anno }}<br>
+                                <strong>Pomeriggio:</strong> {% if turnazione.fa_pomeriggio %}Sì{% else %}No{% endif %}
+                                {% if turnazione.ora_ingresso_alternativa %}
+                                    <br><strong>Ingresso alle:</strong> {{ turnazione.ora_ingresso_alternativa }}
+                                {% endif %}
+                            </p>
+                            <form method="POST" action="{{ url_for('elimina_turnazione', id=turnazione.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Sei sicuro di voler eliminare questa turnazione?')">Elimina</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">Nessuna turnazione inserita</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleOrarioIngresso() {
+    const checkbox = document.getElementById('fa_pomeriggio');
+    const div = document.getElementById('ora_ingresso_div');
+    div.style.display = checkbox.checked ? 'block' : 'none';
+}
+</script>
+{% endblock %}

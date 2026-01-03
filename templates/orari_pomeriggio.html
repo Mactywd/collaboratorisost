@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Configurazione Orari Pomeriggio{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Configurazione Orari Pomeriggio</h1>
+        <p>Configura per ogni giorno se c'è il pomeriggio e a che ora termina</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    {% set giorni = [
+                        ('lunedi', 'Lunedì'),
+                        ('martedi', 'Martedì'),
+                        ('mercoledi', 'Mercoledì'),
+                        ('giovedi', 'Giovedì'),
+                        ('venerdi', 'Venerdì'),
+                        ('sabato', 'Sabato')
+                    ] %}
+
+                    {% for giorno_id, giorno_nome in giorni %}
+                    <div class="row mb-3">
+                        <div class="col-md-2">
+                            <label class="form-label">{{ giorno_nome }}</label>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="{{ giorno_id }}_attivo"
+                                       name="{{ giorno_id }}_attivo"
+                                       {% if orari.get(giorno_id) %}checked{% endif %}
+                                       onchange="toggleOrario('{{ giorno_id }}')">
+                                <label class="form-check-label" for="{{ giorno_id }}_attivo">
+                                    Attivo
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text">Termine</span>
+                                <input type="time" class="form-control" id="{{ giorno_id }}_fine"
+                                       name="{{ giorno_id }}_fine"
+                                       value="{{ orari.get(giorno_id, {}).get('ora_fine', '') }}"
+                                       {% if not orari.get(giorno_id) %}disabled{% endif %}>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <span class="input-group-text">N. collab.</span>
+                                <input type="number" class="form-control" id="{{ giorno_id }}_num_collaboratori"
+                                       name="{{ giorno_id }}_num_collaboratori"
+                                       value="{{ orari.get(giorno_id, {}).get('num_collaboratori', 0) }}"
+                                       min="0"
+                                       {% if not orari.get(giorno_id) %}disabled{% endif %}>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-primary mt-3">Salva Configurazione</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Riepilogo Orari</h5>
+            </div>
+            <div class="card-body">
+                {% if orari %}
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Giorno</th>
+                                <th>Termine</th>
+                                <th>N. Collab.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set nomi_giorni = {
+                                'lunedi': 'Lunedì',
+                                'martedi': 'Martedì',
+                                'mercoledi': 'Mercoledì',
+                                'giovedi': 'Giovedì',
+                                'venerdi': 'Venerdì',
+                                'sabato': 'Sabato'
+                            } %}
+                            {% for giorno, info in orari.items() %}
+                            <tr>
+                                <td>{{ nomi_giorni.get(giorno, giorno) }}</td>
+                                <td>{{ info.ora_fine }}</td>
+                                <td>{{ info.get('num_collaboratori', 0) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="text-muted">Nessun pomeriggio configurato</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleOrario(giorno) {
+    const checkbox = document.getElementById(giorno + '_attivo');
+    const timeInput = document.getElementById(giorno + '_fine');
+    const numCollabInput = document.getElementById(giorno + '_num_collaboratori');
+
+    timeInput.disabled = !checkbox.checked;
+    numCollabInput.disabled = !checkbox.checked;
+
+    if (!checkbox.checked) {
+        timeInput.value = '';
+        numCollabInput.value = '0';
+    }
+}
+</script>
+{% endblock %}

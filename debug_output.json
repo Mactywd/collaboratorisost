@@ -1,13 +1,13 @@
 {
     "absences": [
         {
-            "collaboratore_id": 8,
+            "collaboratore_id": 2,
             "inizio": "day_start",
             "fine": "day_end",
             "tipo": "assenza"
         },
         {
-            "collaboratore_id": 1,
+            "collaboratore_id": 2,
             "inizio": "day_start",
             "fine": "10:48",
             "tipo": "turnazione"
@@ -17,12 +17,6 @@
         {
             "collaboratore_id": 1,
             "luogo_id": 1,
-            "start": "10:48",
-            "end": "18:00"
-        },
-        {
-            "collaboratore_id": 2,
-            "luogo_id": 2,
             "start": "7:54",
             "end": "14:57"
         },
@@ -47,6 +41,12 @@
         {
             "collaboratore_id": 6,
             "luogo_id": 4,
+            "start": "7:54",
+            "end": "14:57"
+        },
+        {
+            "collaboratore_id": 8,
+            "luogo_id": 6,
             "start": "7:54",
             "end": "14:57"
         },

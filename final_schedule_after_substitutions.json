@@ -2,19 +2,6 @@
     "1": [
         {
             "collaboratore_id": 1,
-            "start": "10:48",
-            "end": "18:00"
-        },
-        {
-            "collaboratore_id": 3,
-            "start": "7:30",
-            "end": "14:42",
-            "original_luogo_id": 3
-        }
-    ],
-    "2": [
-        {
-            "collaboratore_id": 2,
             "start": "7:54",
             "end": "14:57"
         }
@@ -39,6 +26,11 @@
         }
     ],
     "6": [
+        {
+            "collaboratore_id": 8,
+            "start": "7:54",
+            "end": "14:57"
+        },
         {
             "collaboratore_id": 9,
             "start": "7:54",
@@ -71,6 +63,14 @@
             "collaboratore_id": 13,
             "start": "10:48",
             "end": "18:00"
+        }
+    ],
+    "2": [
+        {
+            "collaboratore_id": 3,
+            "start": "7:30",
+            "end": "14:42",
+            "original_luogo_id": 3
         }
     ]
 }

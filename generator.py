@@ -55,7 +55,9 @@ class Generator:
 
     def _calculate_luogo_info(self, schedule):
         luogo_info = {}
-        for luogo_id, collaboratori in schedule.items():
+        for luogo in self.luoghi:
+            luogo_id = luogo['id']
+            collaboratori = schedule.get(luogo_id, [])
             amount = 0
             # Count all collaboratori which enter earlier than "8:20"
             for collaboratore in collaboratori:
@@ -66,6 +68,8 @@ class Generator:
                 if start_time_obj <= target_time:
                     amount += 1
             min_required = self.luoghi[luogo_id - 1]['min_collaboratori']
+
+            print(f"Luogo: {luogo["nome"]} ({luogo_id}). Num: {amount}. Min: {min_required}")
 
             if amount == min_required:
                 luogo_info[luogo_id] = "EXACT"
@@ -286,7 +290,7 @@ class Generator:
                 collab_id = collaboratore['collaboratore_id']
                 collab = self._get_collaboratore_by_id(collab_id)
                 collab_str = f"{collab['cognome']} {collab['nome']}"
-                if not "original_luogo_id" in collaboratore:
+                if not "original_luogo_id" in collaboratore or len(collaboratori) == 1:
                     result[luogo_str][collab_str] = {
                         'start': collaboratore['start'],
                         'end': collaboratore['end']
@@ -321,7 +325,7 @@ class Generator:
                                 'start': collaboratore['start'],
                                 'end': collaboratore['end']
                             }
-        return result
+        return dict(sorted(result.items()))
                         
     def generate(self, day, month, year, weekday):
         schedule = self.generate_schedule(day, month, year, weekday)

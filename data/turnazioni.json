@@ -13,7 +13,7 @@
     "collaboratore_id": 2,
     "giorno_settimana": "martedi",
     "mese": "gennaio",
-    "anno": 2025,
+    "anno": 2026,
     "fa_pomeriggio": true,
     "ora_ingresso_alternativa": "10:48"
   },
@@ -22,7 +22,7 @@
     "collaboratore_id": 3,
     "giorno_settimana": "martedi",
     "mese": "febbraio",
-    "anno": 2025,
+    "anno": 2026,
     "fa_pomeriggio": true,
     "ora_ingresso_alternativa": "10:48"
   },
@@ -31,7 +31,7 @@
     "collaboratore_id": 4,
     "giorno_settimana": "martedi",
     "mese": "giugno",
-    "anno": 2025,
+    "anno": 2026,
     "fa_pomeriggio": true,
     "ora_ingresso_alternativa": "10:48"
   },
@@ -40,7 +40,7 @@
     "collaboratore_id": 5,
     "giorno_settimana": "martedi",
     "mese": "maggio",
-    "anno": 2025,
+    "anno": 2026,
     "fa_pomeriggio": true,
     "ora_ingresso_alternativa": "10:48"
   },
@@ -49,7 +49,7 @@
     "collaboratore_id": 6,
     "giorno_settimana": "martedi",
     "mese": "aprile",
-    "anno": 2025,
+    "anno": 2026,
     "fa_pomeriggio": true,
     "ora_ingresso_alternativa": "10:48"
   },
@@ -76,7 +76,7 @@
     "collaboratore_id": 11,
     "giorno_settimana": "martedi",
     "mese": "marzo",
-    "anno": 2025,
+    "anno": 2026,
     "fa_pomeriggio": true,
     "ora_ingresso_alternativa": "10:48"
   }

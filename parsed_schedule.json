@@ -1,20 +1,14 @@
 {
     "Bandini 1": {
         "Caternicchia Pietro": {
-            "start": "10:48",
-            "end": "18:00"
-        },
-        "Fanetti Alessandra": {
-            "start": "7:30",
-            "partial_end": "10:48",
-            "move_back_to": "Bar",
-            "end": "14:42"
+            "start": "7:54",
+            "end": "14:57"
         }
     },
     "Bandini 2": {
-        "Egizio Elia": {
-            "start": "7:54",
-            "end": "14:57"
+        "Fanetti Alessandra": {
+            "start": "7:30",
+            "end": "14:42"
         }
     },
     "Bar": {
@@ -34,6 +28,10 @@
         }
     },
     "Laboratori": {
+        "Caprioli Lucia": {
+            "start": "7:54",
+            "end": "14:57"
+        },
         "De Angelis Irene": {
             "start": "7:54",
             "end": "14:57"

@@ -237,17 +237,25 @@ def elimina_assenza(id):
 @app.route('/genera', methods=['GET', 'POST'])
 def genera():
     if request.method == 'POST':
-        # Qui andrà la logica per generare le sostituzioni
-        # Per ora lasciamo vuoto come richiesto
-        sostituzioni = []
+        # Get the date from the form
+        data_str = request.form.get('data')
+        data = datetime.strptime(data_str, '%Y-%m-%d')
+
+        # Extract day, month, year
+        day = data.day
+        month = data.month
+        year = data.year
+
+        # Map weekday to Italian
+        giorni_settimana = ['lunedi', 'martedi', 'mercoledi', 'giovedi', 'venerdi', 'sabato', 'domenica']
+        weekday = giorni_settimana[data.weekday()]
 
         generator = Generator()
-        today = datetime.today()
         sostituzioni = generator.generate(
-            day=12,
-            month=11,
-            year=2025,
-            weekday='martedi'
+            day=day,
+            month=month,
+            year=year,
+            weekday=weekday
         )
 
         return render_template('genera.html', sostituzioni=sostituzioni, generato=True)

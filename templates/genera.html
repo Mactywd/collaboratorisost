@@ -64,8 +64,29 @@
 {% block scripts %}
 <script>
 function ufficializza() {
-    // Implement the logic to officially confirm the substitutions
-    alert("Sostituzioni ufficializzate!");
+    if (!confirm("Confermi di voler ufficializzare queste sostituzioni? Questo aggiornerà le date di ultima sostituzione e gli straordinari.")) {
+        return;
+    }
+
+    fetch('/ufficializza', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            window.location.href = '/genera';
+        } else {
+            alert('Errore: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Errore durante l\'ufficializzazione delle sostituzioni');
+    });
 }
 </script>
 {% endblock %}

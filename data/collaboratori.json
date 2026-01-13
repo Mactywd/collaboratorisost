@@ -28,7 +28,7 @@
     },
     "luogo_id": 1,
     "ultima_sostituzione": null,
-    "straordinari_svolti": 0,
+    "straordinari_svolti": 20,
     "no_overtime_allowed": false
   },
   {
@@ -404,7 +404,7 @@
     },
     "luogo_id": 10,
     "luogo_secondario_id": 9,
-    "ultima_sostituzione": null,
+    "ultima_sostituzione": "2026-01-19",
     "straordinari_svolti": 0,
     "no_overtime_allowed": false
   }

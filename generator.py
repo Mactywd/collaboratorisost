@@ -780,9 +780,6 @@ class Generator:
                     if overtime_person:
                         print(f"Assigning cleaning overtime to {overtime_person['nome']} {overtime_person['cognome']} for location {luogo['nome']}")
 
-                        # Add 20 minutes to their overtime
-                        overtime_person['straordinari_svolti'] += 20
-
                         # Mark this person as assigned today (they can't be assigned again)
                         assigned_today.add(overtime_person['id'])
 
@@ -795,10 +792,6 @@ class Generator:
                         })
                     else:
                         print(f"WARNING: No one available for cleaning overtime at location {luogo['nome']}")
-
-        # Save updated collaboratori data with new straordinari_svolti values
-        with open('data/collaboratori.json', 'w') as f:
-            json.dump(self.collaboratori, f, indent=2)
 
         return schedule
 

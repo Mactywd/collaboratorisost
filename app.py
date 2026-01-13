@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 import json
 import os
 from datetime import datetime
 from generator import Generator
 
 app = Flask(__name__)
+app.secret_key = 'your-secret-key-here-change-in-production'
 
 DATA_DIR = 'data'
 
@@ -308,9 +309,74 @@ def genera():
             weekday=weekday
         )
 
+        # Store the schedule data in session for the "Ufficializza" action
+        # Read the schedule from the JSON file that was just written
+        with open('final_schedule_after_substitutions.json', 'r') as f:
+            schedule = json.load(f)
+
+        session['last_schedule'] = schedule
+        session['last_date'] = data_str
+
         return render_template('genera.html', sostituzioni=sostituzioni, generato=True)
 
     return render_template('genera.html', sostituzioni=None, generato=False)
+
+@app.route('/ufficializza', methods=['POST'])
+def ufficializza():
+    # Get the schedule from session
+    schedule = session.get('last_schedule')
+    date_str = session.get('last_date')
+
+    if not schedule or not date_str:
+        return jsonify({'success': False, 'message': 'Nessuna sostituzione da ufficializzare'}), 400
+
+    # Load collaboratori data
+    collaboratori_data = load_json('collaboratori.json')
+
+    # Create a map of collaboratore_id to collaboratore for easy lookup
+    collab_map = {c['id']: c for c in collaboratori_data}
+
+    # Track all collaborators who did substitutions
+    substitute_ids = set()
+
+    # Process location-based substitutes
+    for luogo_id, collaboratori in schedule.items():
+        if luogo_id in ['afternoon_subs', 'cleaning_overtime']:
+            continue
+
+        for collaboratore in collaboratori:
+            if collaboratore.get('is_substitute', False):
+                substitute_ids.add(collaboratore['collaboratore_id'])
+
+    # Process afternoon substitutes
+    if 'afternoon_subs' in schedule:
+        for collaboratore in schedule['afternoon_subs']:
+            substitute_ids.add(collaboratore['collaboratore_id'])
+
+    # Update ultima_sostituzione for all substitutes
+    for collab_id in substitute_ids:
+        if collab_id in collab_map:
+            collab_map[collab_id]['ultima_sostituzione'] = date_str
+
+    # Process cleaning overtime assignments
+    if 'cleaning_overtime' in schedule:
+        for cleaning in schedule['cleaning_overtime']:
+            collab_id = cleaning['collaboratore_id']
+            overtime_minutes = cleaning['overtime_minutes']
+
+            if collab_id in collab_map:
+                current_overtime = collab_map[collab_id].get('straordinari_svolti', 0)
+                collab_map[collab_id]['straordinari_svolti'] = current_overtime + overtime_minutes
+
+    # Save the updated collaboratori data
+    save_json('collaboratori.json', collaboratori_data)
+
+    # Clear the session data
+    session.pop('last_schedule', None)
+    session.pop('last_date', None)
+
+    return jsonify({'success': True, 'message': 'Sostituzioni ufficializzate con successo!'})
+
 
 if __name__ == '__main__':
     app.run(debug=True)

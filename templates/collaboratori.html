@@ -83,6 +83,20 @@
                     </div>
                     {% endfor %}
 
+                    <h6 class="mt-4 mb-3">Informazioni Aggiuntive</h6>
+
+                    <div class="mb-3">
+                        <label for="ultima_sostituzione" class="form-label">Ultima Sostituzione</label>
+                        <input type="date" class="form-control" id="ultima_sostituzione" name="ultima_sostituzione">
+                        <small class="text-muted">Data dell'ultima sostituzione effettuata</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="straordinari_svolti" class="form-label">Straordinari Svolti (minuti)</label>
+                        <input type="number" class="form-control" id="straordinari_svolti" name="straordinari_svolti" value="0" min="0">
+                        <small class="text-muted">Numero di minuti straordinari svolti</small>
+                    </div>
+
                     <button type="submit" class="btn btn-primary mt-3">Aggiungi Collaboratore</button>
                 </form>
             </div>
@@ -119,6 +133,13 @@
                                     {% endif %}
                                 {% endfor %}
                             {% endif %}
+
+                            {% if collaboratore.get('ultima_sostituzione') %}
+                            <p class="text-muted mb-2"><strong>Ultima Sostituzione:</strong> {{ collaboratore.ultima_sostituzione }}</p>
+                            {% endif %}
+
+                            <p class="text-muted mb-2"><strong>Straordinari Svolti:</strong> {{ collaboratore.get('straordinari_svolti', 0) }} minuti</p>
+
                             <table class="table table-sm">
                                 <thead>
                                     <tr>
@@ -137,6 +158,7 @@
                                     {% endfor %}
                                 </tbody>
                             </table>
+                            <a href="{{ url_for('modifica_collaboratore', id=collaboratore.id) }}" class="btn btn-primary btn-sm">Modifica</a>
                             <form method="POST" action="{{ url_for('elimina_collaboratore', id=collaboratore.id) }}" class="d-inline">
                                 <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Sei sicuro di voler eliminare questo collaboratore?')">Elimina</button>
                             </form>

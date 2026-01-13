@@ -13,9 +13,9 @@
   },
   {
     "id": 3,
-    "nome": "Bar",
+    "nome": "Bar e Pendolo",
     "descrizione": "",
-    "min_collaboratori": 1
+    "min_collaboratori": 2
   },
   {
     "id": 4,
@@ -25,7 +25,7 @@
   },
   {
     "id": 5,
-    "nome": "Jolly",
+    "nome": "Laboratori e Aula Magna",
     "descrizione": "",
     "min_collaboratori": 0
   },
@@ -38,12 +38,6 @@
   {
     "id": 7,
     "nome": "Palestra",
-    "descrizione": "",
-    "min_collaboratori": 0
-  },
-  {
-    "id": 8,
-    "nome": "Pendolo",
     "descrizione": "",
     "min_collaboratori": 0
   },

@@ -6,27 +6,29 @@
     "fisso_nel_luogo": false,
     "orari_settimanali": {
       "lunedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "martedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "mercoledi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "giovedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "venerdi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       }
     },
-    "luogo_id": 1
+    "luogo_id": 1,
+    "ultima_sostituzione": null,
+    "straordinari_svolti": 0
   },
   {
     "id": 2,
@@ -35,27 +37,29 @@
     "fisso_nel_luogo": false,
     "orari_settimanali": {
       "lunedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "martedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "mercoledi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "giovedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "venerdi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       }
     },
-    "luogo_id": 2
+    "luogo_id": 2,
+    "ultima_sostituzione": null,
+    "straordinari_svolti": 0
   },
   {
     "id": 3,
@@ -64,27 +68,30 @@
     "fisso_nel_luogo": false,
     "orari_settimanali": {
       "lunedi": {
-        "inizio": "7:30",
+        "inizio": "07:30",
         "fine": "14:42"
       },
       "martedi": {
-        "inizio": "7:30",
+        "inizio": "07:30",
         "fine": "14:42"
       },
       "mercoledi": {
-        "inizio": "7:30",
+        "inizio": "07:30",
         "fine": "14:42"
       },
       "giovedi": {
-        "inizio": "7:30",
+        "inizio": "07:30",
         "fine": "14:42"
       },
       "venerdi": {
-        "inizio": "7:30",
+        "inizio": "07:30",
         "fine": "14:42"
       }
     },
-    "luogo_id": 3
+    "luogo_id": 3,
+    "ultima_sostituzione": null,
+    "straordinari_svolti": 0,
+    "luogo_secondario_id": null
   },
   {
     "id": 4,
@@ -93,27 +100,29 @@
     "fisso_nel_luogo": false,
     "orari_settimanali": {
       "lunedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "martedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "mercoledi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "giovedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "venerdi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       }
     },
-    "luogo_id": 3
+    "luogo_id": 3,
+    "ultima_sostituzione": null,
+    "straordinari_svolti": 0
   },
   {
     "id": 5,
@@ -122,27 +131,29 @@
     "fisso_nel_luogo": false,
     "orari_settimanali": {
       "lunedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "martedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "mercoledi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "giovedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "venerdi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       }
     },
-    "luogo_id": 4
+    "luogo_id": 4,
+    "ultima_sostituzione": null,
+    "straordinari_svolti": 0
   },
   {
     "id": 6,
@@ -151,27 +162,29 @@
     "fisso_nel_luogo": false,
     "orari_settimanali": {
       "lunedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "martedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "mercoledi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "giovedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "venerdi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       }
     },
-    "luogo_id": 4
+    "luogo_id": 4,
+    "ultima_sostituzione": null,
+    "straordinari_svolti": 0
   },
   {
     "id": 7,
@@ -184,19 +197,21 @@
         "fine": "16:30"
       },
       "mercoledi": {
-        "inizio": "8:30",
+        "inizio": "08:30",
         "fine": "14:30"
       },
       "giovedi": {
-        "inizio": "8:30",
+        "inizio": "08:30",
         "fine": "14:30"
       },
       "venerdi": {
-        "inizio": "8:30",
+        "inizio": "08:30",
         "fine": "14:30"
       }
     },
-    "luogo_id": 5
+    "luogo_id": 5,
+    "ultima_sostituzione": null,
+    "straordinari_svolti": 0
   },
   {
     "id": 8,
@@ -205,27 +220,29 @@
     "fisso_nel_luogo": false,
     "orari_settimanali": {
       "lunedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "martedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "mercoledi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "giovedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "venerdi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       }
     },
-    "luogo_id": 6
+    "luogo_id": 6,
+    "ultima_sostituzione": null,
+    "straordinari_svolti": 0
   },
   {
     "id": 9,
@@ -234,27 +251,29 @@
     "fisso_nel_luogo": false,
     "orari_settimanali": {
       "lunedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "martedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "mercoledi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "giovedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "venerdi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       }
     },
-    "luogo_id": 6
+    "luogo_id": 6,
+    "ultima_sostituzione": null,
+    "straordinari_svolti": 0
   },
   {
     "id": 10,
@@ -283,7 +302,9 @@
         "fine": "18:00"
       }
     },
-    "luogo_id": 7
+    "luogo_id": 7,
+    "ultima_sostituzione": null,
+    "straordinari_svolti": 0
   },
   {
     "id": 11,
@@ -292,27 +313,29 @@
     "fisso_nel_luogo": false,
     "orari_settimanali": {
       "lunedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "martedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "mercoledi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "giovedi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       },
       "venerdi": {
-        "inizio": "7:54",
+        "inizio": "07:54",
         "fine": "14:57"
       }
     },
-    "luogo_id": 8
+    "luogo_id": 3,
+    "ultima_sostituzione": null,
+    "straordinari_svolti": 0
   },
   {
     "id": 12,
@@ -321,23 +344,25 @@
     "fisso_nel_luogo": true,
     "orari_settimanali": {
       "lunedi": {
-        "inizio": "8:00",
+        "inizio": "08:00",
         "fine": "14:00"
       },
       "martedi": {
-        "inizio": "8:00",
+        "inizio": "08:00",
         "fine": "14:00"
       },
       "mercoledi": {
-        "inizio": "8:00",
+        "inizio": "08:00",
         "fine": "14:00"
       },
       "giovedi": {
-        "inizio": "8:00",
+        "inizio": "08:00",
         "fine": "14:00"
       }
     },
-    "luogo_id": 9
+    "luogo_id": 9,
+    "ultima_sostituzione": null,
+    "straordinari_svolti": 0
   },
   {
     "id": 13,
@@ -346,7 +371,7 @@
     "fisso_nel_luogo": false,
     "orari_settimanali": {
       "lunedi": {
-        "inizio": "8:18",
+        "inizio": "08:18",
         "fine": "15:00"
       },
       "martedi": {
@@ -354,11 +379,11 @@
         "fine": "18:00"
       },
       "mercoledi": {
-        "inizio": "8:18",
+        "inizio": "08:18",
         "fine": "15:00"
       },
       "giovedi": {
-        "inizio": "8:18",
+        "inizio": "08:18",
         "fine": "15:00"
       },
       "venerdi": {
@@ -367,6 +392,8 @@
       }
     },
     "luogo_id": 10,
-    "luogo_secondario_id": 9
+    "luogo_secondario_id": 9,
+    "ultima_sostituzione": null,
+    "straordinari_svolti": 0
   }
 ]

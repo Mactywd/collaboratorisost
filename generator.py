@@ -1,5 +1,6 @@
 import json
-from datetime import time
+from datetime import datetime, time
+import random
 
 class Generator:
     def __init__(self):
@@ -62,14 +63,14 @@ class Generator:
             # Count all collaboratori which enter earlier than "8:20"
             for collaboratore in collaboratori:
                 start_time = collaboratore['start']
+                print(collaboratore)
                 start_hour, start_minute = map(int, start_time.split(':'))
                 start_time_obj = time(start_hour, start_minute)
                 target_time = time(8, 20)
                 if start_time_obj <= target_time:
                     amount += 1
-            min_required = self.luoghi[luogo_id - 1]['min_collaboratori']
-
-            print(f"Luogo: {luogo["nome"]} ({luogo_id}). Num: {amount}. Min: {min_required}")
+            
+            min_required = luogo['min_collaboratori']
 
             if amount == min_required:
                 luogo_info[luogo_id] = "EXACT"
@@ -79,6 +80,51 @@ class Generator:
                 luogo_info[luogo_id] = f"-{min_required - amount}"
         
         return luogo_info
+
+    def find_substitute(self, schedule, criteria):
+        '''
+        Find a substitute available to cover a missing shift.
+        '''
+        luogo_info = self._calculate_luogo_info(schedule)
+        available_collaboratori = {}
+        for luogo_id, info in luogo_info.items():
+            if info.startswith("+"):
+                # Find all collaboratori
+                possible_subs = [c for c in self.collaboratori if c["luogo_id"] == luogo_id]
+                for sub in possible_subs:
+                    available_collaboratori[sub["id"]] = {
+                        "last_sub": sub["ultima_sostituzione"],
+                        "overtime": sub["straordinari_svolti"],
+                    }
+        # Choose based on selected criteria
+        if criteria == "overtime":
+            min_overtime = min(col["straordinari_svolti"] for col in available_collaboratori)
+            for collaboratore in self.collaboratori:
+                if collaboratore["straordinari_svolti"] == min_overtime: 
+                    return collaboratore
+            return None
+        
+        elif criteria == "substitute":
+            # First, look for collaboratori with "none" as last substitute date
+            none_collaboratori = []
+            for collaboratore in self.collaboratori:
+                if collaboratore["id"] in available_collaboratori:
+                    if collaboratore["ultima_sostituzione"] == None:
+                        none_collaboratori.append(collaboratore)
+            if none_collaboratori:
+                return random.choice(none_collaboratori)
+                    
+            # If none found, pick the one with the oldest last substitute date
+            last_substitute = max(col["ultima_sostituzione"] for col in self.collaboratori)
+            print("Last substitute date to beat:", last_substitute)
+            for collaboratore in self.collaboratori:
+                if collaboratore["ultima_sostituzione"] == last_substitute:
+                    return collaboratore
+            return None
+        
+        else:
+            return None
+
 
     def populate_absences(self, day, month, year, weekday):
         '''
@@ -222,9 +268,26 @@ class Generator:
 
         return absences, present_locations
     
+    def _find_absent_collaborator(self, luogo_id, day, month, year):
+        '''Find which collaborator from a location is absent on a given day.'''
+        for collaboratore in self.collaboratori:
+            if collaboratore['luogo_id'] == luogo_id:
+                # Check if this collaboratore is absent today
+                for assenza in self.assenze:
+                    assenza_date = assenza['data']
+                    assenza_day = int(assenza_date.split('-')[2])
+                    assenza_month = int(assenza_date.split('-')[1])
+                    assenza_year = int(assenza_date.split('-')[0])
+                    if (assenza['collaboratore_id'] == collaboratore['id'] and
+                        assenza_day == day and
+                        assenza_month == month and
+                        assenza_year == year):
+                        return collaboratore
+        return None
+
     def generate_schedule(self, day, month, year, weekday):
         absences, present_locations = self.populate_absences(day, month, year, weekday)
-        
+
         # Group present locations by luogo_id
         schedule = {}
         for location in present_locations:
@@ -236,43 +299,67 @@ class Generator:
                 'start': location['start'],
                 'end': location['end']
             })
-        
+
         with open("final_schedule.json", "w") as schedule_file:
             json.dump(schedule, schedule_file, indent=4)
-        
+
         luogo_info = self._calculate_luogo_info(schedule)
-        
+
         for luogo_id, info in luogo_info.items():
             print(f"Luogo ID {luogo_id}: {info}")
 
             if info.startswith("-"):
                 amount_needed = int(info[1:])
                 while amount_needed > 0:
-                    for sub_luogo_id in self.sub_order:
-                        if sub_luogo_id in schedule and luogo_info[sub_luogo_id].startswith("+"):
-                            for sub in schedule[sub_luogo_id]:
-                                collaboratore = self._get_collaboratore_by_id(sub['collaboratore_id'])
-                                if collaboratore and collaboratore['fisso_nel_luogo'] == False:
-                                    
-                                    # Apply schedule modification
-                                    print(f"Reassigning Collaboratore ID {collaboratore['id']} from Luogo ID {sub_luogo_id} to Luogo ID {luogo_id}")
-                                    schedule[sub_luogo_id].remove(sub)
-                                    if luogo_id not in schedule:
-                                        schedule[luogo_id] = []
-                                    schedule[luogo_id].append({
-                                        'collaboratore_id': collaboratore['id'],
-                                        'start': sub['start'],
-                                        'end': sub['end'],
-                                        'original_luogo_id': sub_luogo_id
-                                    })
-                                    # Update luogo_info
-                                    luogo_info = self._calculate_luogo_info(schedule)
 
-                                    amount_needed -= 1
-                                    if amount_needed == 0:
-                                        break
-                            if amount_needed == 0:
-                                break
+                    substitute = self.find_substitute(schedule, "substitute")
+                    if substitute:
+                        # Find who is being replaced
+                        absent_collaboratore = self._find_absent_collaborator(luogo_id, day, month, year)
+
+                        print(f"Found substitute Collaboratore ID {substitute['id']} for Luogo ID {luogo_id}")
+                        # Assign substitute to the luogo
+                        if luogo_id not in schedule:
+                            schedule[luogo_id] = []
+                        schedule[luogo_id].append({
+                            'collaboratore_id': substitute['id'],
+                            'start': substitute['orari_settimanali'][weekday]['inizio'],
+                            'end': substitute['orari_settimanali'][weekday]['fine'],
+                            'is_substitute': True,
+                            'replaces_id': absent_collaboratore['id'] if absent_collaboratore else None
+                        })
+                        # Update luogo_info
+                        luogo_info = self._calculate_luogo_info(schedule)
+                        amount_needed -= 1
+                    else:
+                        print("No available substitute found.")
+                        break
+                    
+                    # for sub_luogo_id in self.sub_order:
+                    #     if sub_luogo_id in schedule and luogo_info[sub_luogo_id].startswith("+"):
+                    #         for sub in schedule[sub_luogo_id]:
+                    #             collaboratore = self._get_collaboratore_by_id(sub['collaboratore_id'])
+                    #             if collaboratore and collaboratore['fisso_nel_luogo'] == False:
+                                    
+                    #                 # Apply schedule modification
+                    #                 print(f"Reassigning Collaboratore ID {collaboratore['id']} from Luogo ID {sub_luogo_id} to Luogo ID {luogo_id}")
+                    #                 schedule[sub_luogo_id].remove(sub)
+                    #                 if luogo_id not in schedule:
+                    #                     schedule[luogo_id] = []
+                    #                 schedule[luogo_id].append({
+                    #                     'collaboratore_id': collaboratore['id'],
+                    #                     'start': sub['start'],
+                    #                     'end': sub['end'],
+                    #                     'original_luogo_id': sub_luogo_id
+                    #                 })
+                    #                 # Update luogo_info
+                    #                 luogo_info = self._calculate_luogo_info(schedule)
+
+                    #                 amount_needed -= 1
+                    #                 if amount_needed == 0:
+                    #                     break
+                    #         if amount_needed == 0:
+                    #             break
                     # If after going through sub_order we still need more, break to avoid infinite loop
                     if amount_needed > 0:
                         print("Not enough available collaborators to cover the shortage.")
@@ -326,16 +413,51 @@ class Generator:
                                 'end': collaboratore['end']
                             }
         return dict(sorted(result.items()))
-                        
+
+    def parse_substitutions_only(self, schedule):
+        '''
+        Parse only substitutions and return as a formatted string.
+        '''
+        result = []
+        for luogo_id, collaboratori in schedule.items():
+            luogo_str = self._get_luogo_by_id(int(luogo_id))['nome']
+            subs_for_location = []
+
+            for collaboratore in collaboratori:
+                # Only include substitutes
+                if collaboratore.get('is_substitute', False):
+                    collab_id = collaboratore['collaboratore_id']
+                    collab = self._get_collaboratore_by_id(collab_id)
+                    collab_str = f"{collab['cognome']} {collab['nome']}"
+                    start = collaboratore['start']
+                    end = collaboratore['end']
+
+                    # Get who is being replaced
+                    replaces_id = collaboratore.get('replaces_id')
+                    if replaces_id:
+                        absent_collab = self._get_collaboratore_by_id(replaces_id)
+                        absent_str = f"{absent_collab['cognome']} {absent_collab['nome']}"
+                        subs_for_location.append(f"- {collab_str} entra alle {start} ed esce alle {end} (sostituisce {absent_str})")
+                    else:
+                        subs_for_location.append(f"- {collab_str} entra alle {start} ed esce alle {end}")
+
+            # Only add location if it has substitutions
+            if subs_for_location:
+                result.append(f"{luogo_str}:")
+                result.extend(subs_for_location)
+                result.append("")  # Empty line between locations
+
+        return "\n".join(result).strip()
+
     def generate(self, day, month, year, weekday):
         schedule = self.generate_schedule(day, month, year, weekday)
 
         with open("final_schedule_after_substitutions.json", "w") as final_file:
             json.dump(schedule, final_file, indent=4)
-        
-        parsed = self.parse_result(schedule, weekday)
-        
+
+        substitutions_text = self.parse_substitutions_only(schedule)
+
         with open("parsed_schedule.json", "w") as parsed_file:
-            json.dump(parsed, parsed_file, indent=4)
-        
-        return parsed
+            json.dump({"substitutions_text": substitutions_text}, parsed_file, indent=4)
+
+        return substitutions_text

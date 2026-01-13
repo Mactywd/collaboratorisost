@@ -77,6 +77,9 @@ def collaboratori():
                     'fine': fine
                 }
 
+        ultima_sostituzione = request.form.get('ultima_sostituzione') or None
+        straordinari_svolti = int(request.form.get('straordinari_svolti', 0))
+
         collaboratore = {
             'id': len(collaboratori_data) + 1,
             'nome': nome,
@@ -84,7 +87,9 @@ def collaboratori():
             'luogo_id': luogo_id,
             'luogo_secondario_id': luogo_secondario_id,
             'fisso_nel_luogo': fisso_nel_luogo,
-            'orari_settimanali': orari_settimanali
+            'orari_settimanali': orari_settimanali,
+            'ultima_sostituzione': ultima_sostituzione,
+            'straordinari_svolti': straordinari_svolti
         }
 
         collaboratori_data.append(collaboratore)
@@ -102,6 +107,46 @@ def elimina_collaboratore(id):
     collaboratori_data = [c for c in collaboratori_data if c['id'] != id]
     save_json('collaboratori.json', collaboratori_data)
     return redirect(url_for('collaboratori'))
+
+@app.route('/collaboratori/modifica/<int:id>', methods=['GET', 'POST'])
+def modifica_collaboratore(id):
+    collaboratori_data = load_json('collaboratori.json')
+    luoghi_data = load_json('luoghi.json')
+
+    # Find the collaboratore to edit
+    collaboratore = next((c for c in collaboratori_data if c['id'] == id), None)
+    if not collaboratore:
+        return redirect(url_for('collaboratori'))
+
+    if request.method == 'POST':
+        # Update collaboratore data
+        collaboratore['nome'] = request.form.get('nome')
+        collaboratore['cognome'] = request.form.get('cognome')
+        collaboratore['luogo_id'] = int(request.form.get('luogo_id')) if request.form.get('luogo_id') else None
+        collaboratore['luogo_secondario_id'] = int(request.form.get('luogo_secondario_id')) if request.form.get('luogo_secondario_id') else None
+        collaboratore['fisso_nel_luogo'] = request.form.get('fisso_nel_luogo') == 'on'
+
+        # Update orari settimanali
+        orari_settimanali = {}
+        giorni = ['lunedi', 'martedi', 'mercoledi', 'giovedi', 'venerdi', 'sabato']
+        for giorno in giorni:
+            inizio = request.form.get(f'{giorno}_inizio')
+            fine = request.form.get(f'{giorno}_fine')
+            if inizio and fine:
+                orari_settimanali[giorno] = {
+                    'inizio': inizio,
+                    'fine': fine
+                }
+        collaboratore['orari_settimanali'] = orari_settimanali
+
+        # Update new fields
+        collaboratore['ultima_sostituzione'] = request.form.get('ultima_sostituzione') or None
+        collaboratore['straordinari_svolti'] = int(request.form.get('straordinari_svolti', 0))
+
+        save_json('collaboratori.json', collaboratori_data)
+        return redirect(url_for('collaboratori'))
+
+    return render_template('modifica_collaboratore.html', collaboratore=collaboratore, luoghi=luoghi_data)
 
 @app.route('/coperture-fisse', methods=['GET', 'POST'])
 def coperture_fisse():

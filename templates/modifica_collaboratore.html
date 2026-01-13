@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Modifica Collaboratore{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Modifica Collaboratore</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Modifica {{ collaboratore.nome }} {{ collaboratore.cognome }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome</label>
+                        <input type="text" class="form-control" id="nome" name="nome" value="{{ collaboratore.nome }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cognome" class="form-label">Cognome</label>
+                        <input type="text" class="form-control" id="cognome" name="cognome" value="{{ collaboratore.cognome }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="luogo_id" class="form-label">Luogo di Competenza</label>
+                        <select class="form-select" id="luogo_id" name="luogo_id" required>
+                            <option value="">Seleziona un luogo</option>
+                            {% for luogo in luoghi %}
+                            <option value="{{ luogo.id }}" {% if luogo.id == collaboratore.luogo_id %}selected{% endif %}>{{ luogo.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="luogo_secondario_id" class="form-label">Luogo Secondario (opzionale)</label>
+                        <select class="form-select" id="luogo_secondario_id" name="luogo_secondario_id">
+                            <option value="">Nessuno</option>
+                            {% for luogo in luoghi %}
+                            <option value="{{ luogo.id }}" {% if luogo.id == collaboratore.get('luogo_secondario_id') %}selected{% endif %}>{{ luogo.nome }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">In caso di assenza in questo luogo, sarà la prima scelta per sostituire</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="fisso_nel_luogo" name="fisso_nel_luogo" {% if collaboratore.get('fisso_nel_luogo') %}checked{% endif %}>
+                            <label class="form-check-label" for="fisso_nel_luogo">
+                                Fisso nel luogo (non spostare, ultima scelta per sostituzioni)
+                            </label>
+                        </div>
+                    </div>
+
+                    <h6 class="mt-4 mb-3">Orari Settimanali</h6>
+
+                    {% set giorni = [
+                        ('lunedi', 'Lunedì'),
+                        ('martedi', 'Martedì'),
+                        ('mercoledi', 'Mercoledì'),
+                        ('giovedi', 'Giovedì'),
+                        ('venerdi', 'Venerdì'),
+                        ('sabato', 'Sabato')
+                    ] %}
+
+                    {% for giorno_id, giorno_nome in giorni %}
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            <label class="form-label">{{ giorno_nome }}</label>
+                        </div>
+                        <div class="col-4">
+                            <input type="time" class="form-control" name="{{ giorno_id }}_inizio"
+                                   value="{{ collaboratore.orari_settimanali.get(giorno_id, {}).get('inizio', '') }}"
+                                   placeholder="Inizio">
+                        </div>
+                        <div class="col-4">
+                            <input type="time" class="form-control" name="{{ giorno_id }}_fine"
+                                   value="{{ collaboratore.orari_settimanali.get(giorno_id, {}).get('fine', '') }}"
+                                   placeholder="Fine">
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <h6 class="mt-4 mb-3">Informazioni Aggiuntive</h6>
+
+                    <div class="mb-3">
+                        <label for="ultima_sostituzione" class="form-label">Ultima Sostituzione</label>
+                        <input type="date" class="form-control" id="ultima_sostituzione" name="ultima_sostituzione"
+                               value="{{ collaboratore.get('ultima_sostituzione', '') }}">
+                        <small class="text-muted">Data dell'ultima sostituzione effettuata</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="straordinari_svolti" class="form-label">Straordinari Svolti (minuti)</label>
+                        <input type="number" class="form-control" id="straordinari_svolti" name="straordinari_svolti"
+                               value="{{ collaboratore.get('straordinari_svolti', 0) }}" min="0">
+                        <small class="text-muted">Numero di minuti straordinari svolti</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary mt-3">Salva Modifiche</button>
+                    <a href="{{ url_for('collaboratori') }}" class="btn btn-secondary mt-3">Annulla</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

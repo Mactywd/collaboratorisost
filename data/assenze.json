@@ -22,5 +22,13 @@
     "tutto_giorno": true,
     "ora_inizio": null,
     "ora_fine": null
+  },
+  {
+    "id": 4,
+    "collaboratore_id": 12,
+    "data": "2026-01-19",
+    "tutto_giorno": true,
+    "ora_inizio": null,
+    "ora_fine": null
   }
 ]

@@ -81,9 +81,32 @@ class Generator:
         
         return luogo_info
 
-    def find_substitute(self, schedule, criteria):
+    def _is_collaborator_already_assigned(self, schedule, collaboratore_id):
+        '''Check if a collaborator is already assigned as a substitute.'''
+        # Check if already assigned as a substitute at any location
+        for luogo_id, collaboratori in schedule.items():
+            if luogo_id == 'afternoon_subs':
+                continue
+            for collab in collaboratori:
+                if collab['collaboratore_id'] == collaboratore_id and collab.get('is_substitute', False):
+                    return True
+
+        # Check afternoon substitutes
+        if 'afternoon_subs' in schedule:
+            for collab in schedule['afternoon_subs']:
+                if collab['collaboratore_id'] == collaboratore_id:
+                    return True
+
+        return False
+
+    def find_substitute(self, schedule, criteria, needed_luogo_id=None):
         '''
         Find a substitute available to cover a missing shift.
+
+        Args:
+            schedule: Current schedule state
+            criteria: Selection criteria ("overtime" or "substitute")
+            needed_luogo_id: The location ID that needs coverage
         '''
         luogo_info = self._calculate_luogo_info(schedule)
         available_collaboratori = {}
@@ -92,20 +115,45 @@ class Generator:
                 # Find all collaboratori
                 possible_subs = [c for c in self.collaboratori if c["luogo_id"] == luogo_id]
                 for sub in possible_subs:
+                    # Skip if already assigned
+                    if self._is_collaborator_already_assigned(schedule, sub["id"]):
+                        continue
                     available_collaboratori[sub["id"]] = {
                         "last_sub": sub["ultima_sostituzione"],
                         "overtime": sub["straordinari_svolti"],
                     }
+
+        # If no available collaborators, return None
+        if not available_collaboratori:
+            return None
+
         # Choose based on selected criteria
         if criteria == "overtime":
-            min_overtime = min(col["straordinari_svolti"] for col in available_collaboratori)
+            min_overtime = min(available_collaboratori[col_id]["overtime"] for col_id in available_collaboratori)
             for collaboratore in self.collaboratori:
-                if collaboratore["straordinari_svolti"] == min_overtime: 
+                if collaboratore["id"] in available_collaboratori and collaboratore["straordinari_svolti"] == min_overtime:
                     return collaboratore
             return None
-        
+
         elif criteria == "substitute":
-            # First, look for collaboratori with "none" as last substitute date
+            # PRIORITY 1: Check for luogo_secondario
+            # If a collaborator has the needed location as their luogo_secondario, they are the first choice
+            if needed_luogo_id is not None:
+                luogo_secondario_candidates = []
+                for collaboratore in self.collaboratori:
+                    # Check if this collaborator has the needed location as luogo_secondario
+                    if collaboratore.get("luogo_secondario_id") == needed_luogo_id:
+                        # Check if they are available (not already assigned and in surplus location)
+                        if collaboratore["id"] in available_collaboratori:
+                            luogo_secondario_candidates.append(collaboratore)
+
+                if luogo_secondario_candidates:
+                    # Pick the first one (could add more logic here if needed)
+                    chosen = luogo_secondario_candidates[0]
+                    print(f"Found luogo_secondario match: {chosen['cognome']} {chosen['nome']} for luogo {needed_luogo_id}")
+                    return chosen
+
+            # PRIORITY 2: Then, look for collaboratori with "none" as last substitute date
             none_collaboratori = []
             for collaboratore in self.collaboratori:
                 if collaboratore["id"] in available_collaboratori:
@@ -113,15 +161,23 @@ class Generator:
                         none_collaboratori.append(collaboratore)
             if none_collaboratori:
                 return random.choice(none_collaboratori)
-                    
-            # If none found, pick the one with the oldest last substitute date
-            last_substitute = max(col["ultima_sostituzione"] for col in self.collaboratori)
+
+            # PRIORITY 3: If none found, pick the one with the oldest last substitute date
+            available_dates = [self.collaboratori[i]["ultima_sostituzione"]
+                             for i, col in enumerate(self.collaboratori)
+                             if col["id"] in available_collaboratori and col["ultima_sostituzione"] is not None]
+
+            if not available_dates:
+                return None
+
+            last_substitute = max(available_dates)
             print("Last substitute date to beat:", last_substitute)
             for collaboratore in self.collaboratori:
-                if collaboratore["ultima_sostituzione"] == last_substitute:
+                if (collaboratore["id"] in available_collaboratori and
+                    collaboratore["ultima_sostituzione"] == last_substitute):
                     return collaboratore
             return None
-        
+
         else:
             return None
 
@@ -285,6 +341,103 @@ class Generator:
                         return collaboratore
         return None
 
+    def _find_turnazione_at_location(self, luogo_id, weekday, month, year):
+        '''Find if someone at this location has a turnazione (shifted hours) today.'''
+        str_month = self._convert_month('name_from_index', month_index=month)
+        for collaboratore in self.collaboratori:
+            if collaboratore['luogo_id'] == luogo_id:
+                for turnazione in self.turnazioni:
+                    if (turnazione['collaboratore_id'] == collaboratore['id'] and
+                        turnazione['giorno_settimana'] == weekday and
+                        turnazione['mese'] == str_month and
+                        turnazione['anno'] == year):
+                        return collaboratore, turnazione['ora_ingresso_alternativa']
+        return None, None
+
+    def _find_absent_afternoon_collaborator(self, day, month, year, weekday):
+        '''Find which collaborator is absent and was supposed to cover afternoon shift.'''
+        # Check if there's an afternoon shift today
+        if weekday not in self.orari_pomeriggio or not self.orari_pomeriggio[weekday].get('attivo'):
+            return None
+
+        afternoon_end = self.orari_pomeriggio[weekday]['ora_fine']
+        afternoon_end_hour, afternoon_end_minute = map(int, afternoon_end.split(':'))
+        afternoon_end_time = time(afternoon_end_hour, afternoon_end_minute)
+
+        # Find collaborators who are absent today and normally work until afternoon
+        for assenza in self.assenze:
+            assenza_date = assenza['data']
+            assenza_day = int(assenza_date.split('-')[2])
+            assenza_month = int(assenza_date.split('-')[1])
+            assenza_year = int(assenza_date.split('-')[0])
+
+            if (assenza_day == day and assenza_month == month and assenza_year == year):
+                collaboratore = self._get_collaboratore_by_id(assenza['collaboratore_id'])
+                if collaboratore and weekday in collaboratore['orari_settimanali']:
+                    # Check if they normally work until afternoon end time
+                    end_str = collaboratore['orari_settimanali'][weekday]['fine']
+                    end_hour, end_minute = map(int, end_str.split(':'))
+                    end_time = time(end_hour, end_minute)
+
+                    if end_time >= afternoon_end_time:
+                        return collaboratore
+
+        # Also check if someone with a turnazione covering afternoon is absent
+        str_month = self._convert_month('name_from_index', month_index=month)
+        for turnazione in self.turnazioni:
+            if (turnazione['giorno_settimana'] == weekday and
+                turnazione['mese'] == str_month and
+                turnazione['anno'] == year):
+                # Check if this person is absent
+                for assenza in self.assenze:
+                    if assenza['collaboratore_id'] == turnazione['collaboratore_id']:
+                        assenza_date = assenza['data']
+                        assenza_day = int(assenza_date.split('-')[2])
+                        assenza_month = int(assenza_date.split('-')[1])
+                        assenza_year = int(assenza_date.split('-')[0])
+                        if (assenza_day == day and assenza_month == month and assenza_year == year):
+                            return self._get_collaboratore_by_id(turnazione['collaboratore_id'])
+
+        return None
+
+    def _count_afternoon_coverage(self, schedule, afternoon_end_str):
+        '''Count how many collaborators work until afternoon end time across all locations.'''
+        afternoon_end_hour, afternoon_end_minute = map(int, afternoon_end_str.split(':'))
+        afternoon_end_time = time(afternoon_end_hour, afternoon_end_minute)
+
+        count = 0
+        for collaboratori in schedule.values():
+            for collaboratore in collaboratori:
+                end_time_str = collaboratore['end']
+                end_hour, end_minute = map(int, end_time_str.split(':'))
+                end_time = time(end_hour, end_minute)
+
+                if end_time >= afternoon_end_time:
+                    count += 1
+
+        return count
+
+    def _shift_hours_for_afternoon(self, start_str, end_str, afternoon_end_str):
+        '''Shift working hours so they end at afternoon end time while maintaining duration.'''
+        # Parse times
+        start_hour, start_minute = map(int, start_str.split(':'))
+        end_hour, end_minute = map(int, end_str.split(':'))
+        afternoon_end_hour, afternoon_end_minute = map(int, afternoon_end_str.split(':'))
+
+        # Calculate work duration in minutes
+        start_minutes = start_hour * 60 + start_minute
+        end_minutes = end_hour * 60 + end_minute
+        duration_minutes = end_minutes - start_minutes
+
+        # Calculate new start time
+        afternoon_end_minutes = afternoon_end_hour * 60 + afternoon_end_minute
+        new_start_minutes = afternoon_end_minutes - duration_minutes
+
+        new_start_hour = new_start_minutes // 60
+        new_start_minute = new_start_minutes % 60
+
+        return f"{new_start_hour:02d}:{new_start_minute:02d}", afternoon_end_str
+
     def generate_schedule(self, day, month, year, weekday):
         absences, present_locations = self.populate_absences(day, month, year, weekday)
 
@@ -312,58 +465,137 @@ class Generator:
                 amount_needed = int(info[1:])
                 while amount_needed > 0:
 
-                    substitute = self.find_substitute(schedule, "substitute")
+                    substitute = self.find_substitute(schedule, "substitute", needed_luogo_id=luogo_id)
                     if substitute:
-                        # Find who is being replaced
-                        absent_collaboratore = self._find_absent_collaborator(luogo_id, day, month, year)
+                        # Check if shortage is due to turnazione
+                        turnazione_person, turnazione_start = self._find_turnazione_at_location(luogo_id, weekday, month, year)
 
-                        print(f"Found substitute Collaboratore ID {substitute['id']} for Luogo ID {luogo_id}")
-                        # Assign substitute to the luogo
-                        if luogo_id not in schedule:
-                            schedule[luogo_id] = []
-                        schedule[luogo_id].append({
-                            'collaboratore_id': substitute['id'],
-                            'start': substitute['orari_settimanali'][weekday]['inizio'],
-                            'end': substitute['orari_settimanali'][weekday]['fine'],
-                            'is_substitute': True,
-                            'replaces_id': absent_collaboratore['id'] if absent_collaboratore else None
-                        })
-                        # Update luogo_info
+                        if turnazione_person:
+                            # Someone at this location has shifted hours for afternoon
+                            # Substitute only needs to cover the morning gap
+                            print(f"Found substitute Collaboratore ID {substitute['id']} for morning gap at Luogo ID {luogo_id}")
+                            normal_end = substitute['orari_settimanali'][weekday]['fine']
+
+                            if luogo_id not in schedule:
+                                schedule[luogo_id] = []
+                            schedule[luogo_id].append({
+                                'collaboratore_id': substitute['id'],
+                                'start': substitute['orari_settimanali'][weekday]['inizio'],
+                                'end': normal_end,
+                                'partial_end': turnazione_start,
+                                'original_luogo_id': substitute['luogo_id'],
+                                'is_substitute': True,
+                                'replaces_id': turnazione_person['id']
+                            })
+                        else:
+                            # Regular absence, full day substitution
+                            absent_collaboratore = self._find_absent_collaborator(luogo_id, day, month, year)
+
+                            print(f"Found substitute Collaboratore ID {substitute['id']} for Luogo ID {luogo_id}")
+                            if luogo_id not in schedule:
+                                schedule[luogo_id] = []
+                            schedule[luogo_id].append({
+                                'collaboratore_id': substitute['id'],
+                                'start': substitute['orari_settimanali'][weekday]['inizio'],
+                                'end': substitute['orari_settimanali'][weekday]['fine'],
+                                'is_substitute': True,
+                                'replaces_id': absent_collaboratore['id'] if absent_collaboratore else None,
+                                'original_luogo_id': substitute['luogo_id']
+                            })
+
+                        # Update luogo_info to check if substitute's original location now needs coverage
                         luogo_info = self._calculate_luogo_info(schedule)
+
+                        # Check if the substitute's original location now needs a substitute
+                        substitute_original_luogo = substitute['luogo_id']
+                        if substitute_original_luogo in luogo_info and luogo_info[substitute_original_luogo].startswith("-"):
+                            print(f"Substitute's original location (Luogo ID {substitute_original_luogo}) now needs coverage")
+                            # Find a substitute for the substitute's original location
+                            cascading_substitute = self.find_substitute(schedule, "substitute", needed_luogo_id=substitute_original_luogo)
+                            if cascading_substitute:
+                                print(f"Found cascading substitute Collaboratore ID {cascading_substitute['id']} for Luogo ID {substitute_original_luogo}")
+                                if substitute_original_luogo not in schedule:
+                                    schedule[substitute_original_luogo] = []
+                                schedule[substitute_original_luogo].append({
+                                    'collaboratore_id': cascading_substitute['id'],
+                                    'start': cascading_substitute['orari_settimanali'][weekday]['inizio'],
+                                    'end': cascading_substitute['orari_settimanali'][weekday]['fine'],
+                                    'is_substitute': True,
+                                    'replaces_id': substitute['id'],
+                                    'original_luogo_id': cascading_substitute['luogo_id']
+                                })
+                                # Update luogo_info again after cascading substitution
+                                luogo_info = self._calculate_luogo_info(schedule)
+                            else:
+                                print(f"No cascading substitute found for Luogo ID {substitute_original_luogo}")
+
                         amount_needed -= 1
                     else:
                         print("No available substitute found.")
                         break
-                    
-                    # for sub_luogo_id in self.sub_order:
-                    #     if sub_luogo_id in schedule and luogo_info[sub_luogo_id].startswith("+"):
-                    #         for sub in schedule[sub_luogo_id]:
-                    #             collaboratore = self._get_collaboratore_by_id(sub['collaboratore_id'])
-                    #             if collaboratore and collaboratore['fisso_nel_luogo'] == False:
-                                    
-                    #                 # Apply schedule modification
-                    #                 print(f"Reassigning Collaboratore ID {collaboratore['id']} from Luogo ID {sub_luogo_id} to Luogo ID {luogo_id}")
-                    #                 schedule[sub_luogo_id].remove(sub)
-                    #                 if luogo_id not in schedule:
-                    #                     schedule[luogo_id] = []
-                    #                 schedule[luogo_id].append({
-                    #                     'collaboratore_id': collaboratore['id'],
-                    #                     'start': sub['start'],
-                    #                     'end': sub['end'],
-                    #                     'original_luogo_id': sub_luogo_id
-                    #                 })
-                    #                 # Update luogo_info
-                    #                 luogo_info = self._calculate_luogo_info(schedule)
 
-                    #                 amount_needed -= 1
-                    #                 if amount_needed == 0:
-                    #                     break
-                    #         if amount_needed == 0:
-                    #             break
-                    # If after going through sub_order we still need more, break to avoid infinite loop
-                    if amount_needed > 0:
-                        print("Not enough available collaborators to cover the shortage.")
-                        break
+        # Handle afternoon shift coverage (school-wide, not location-specific)
+        if weekday in self.orari_pomeriggio and self.orari_pomeriggio[weekday].get('attivo'):
+            afternoon_end = self.orari_pomeriggio[weekday]['ora_fine']
+            required_afternoon = self.orari_pomeriggio[weekday]['num_collaboratori']
+
+            # Count how many collaborators work until afternoon end time across all locations
+            afternoon_count = self._count_afternoon_coverage(schedule, afternoon_end)
+            print(f"Afternoon coverage: {afternoon_count}/{required_afternoon} until {afternoon_end}")
+
+            while afternoon_count < required_afternoon:
+                substitute = self.find_substitute(schedule, "substitute", needed_luogo_id=None)
+                if substitute:
+                    # Calculate shifted hours
+                    original_start = substitute['orari_settimanali'][weekday]['inizio']
+                    original_end = substitute['orari_settimanali'][weekday]['fine']
+                    new_start, new_end = self._shift_hours_for_afternoon(original_start, original_end, afternoon_end)
+
+                    # Find who they're replacing for afternoon
+                    absent_afternoon = self._find_absent_afternoon_collaborator(day, month, year, weekday)
+
+                    print(f"Found afternoon substitute Collaboratore ID {substitute['id']}: {new_start}-{new_end}")
+
+                    # Store afternoon substitutes separately (not tied to a specific location)
+                    if 'afternoon_subs' not in schedule:
+                        schedule['afternoon_subs'] = []
+                    schedule['afternoon_subs'].append({
+                        'collaboratore_id': substitute['id'],
+                        'start': new_start,
+                        'end': new_end,
+                        'is_substitute': True,
+                        'is_afternoon_sub': True,
+                        'replaces_id': absent_afternoon['id'] if absent_afternoon else None,
+                        'original_luogo_id': substitute['luogo_id']
+                    })
+                    afternoon_count += 1
+
+                    # Update luogo_info and check if substitute's original location now needs coverage
+                    luogo_info = self._calculate_luogo_info(schedule)
+                    substitute_original_luogo = substitute['luogo_id']
+                    if substitute_original_luogo in luogo_info and luogo_info[substitute_original_luogo].startswith("-"):
+                        print(f"Afternoon substitute's original location (Luogo ID {substitute_original_luogo}) now needs coverage")
+                        # Find a substitute for the substitute's original location
+                        cascading_substitute = self.find_substitute(schedule, "substitute", needed_luogo_id=substitute_original_luogo)
+                        if cascading_substitute:
+                            print(f"Found cascading substitute Collaboratore ID {cascading_substitute['id']} for Luogo ID {substitute_original_luogo}")
+                            if substitute_original_luogo not in schedule:
+                                schedule[substitute_original_luogo] = []
+                            schedule[substitute_original_luogo].append({
+                                'collaboratore_id': cascading_substitute['id'],
+                                'start': cascading_substitute['orari_settimanali'][weekday]['inizio'],
+                                'end': cascading_substitute['orari_settimanali'][weekday]['fine'],
+                                'is_substitute': True,
+                                'replaces_id': substitute['id'],
+                                'original_luogo_id': cascading_substitute['luogo_id']
+                            })
+                            # Update luogo_info again after cascading substitution
+                            luogo_info = self._calculate_luogo_info(schedule)
+                        else:
+                            print(f"No cascading substitute found for Luogo ID {substitute_original_luogo}")
+                else:
+                    print("No available substitute found for afternoon coverage.")
+                    break
         return schedule
     
     def parse_result(self, schedule, weekday):
@@ -419,7 +651,13 @@ class Generator:
         Parse only substitutions and return as a formatted string.
         '''
         result = []
+
+        # Process location-based substitutes
         for luogo_id, collaboratori in schedule.items():
+            # Skip afternoon_subs special key
+            if luogo_id == 'afternoon_subs':
+                continue
+
             luogo_str = self._get_luogo_by_id(int(luogo_id))['nome']
             subs_for_location = []
 
@@ -432,20 +670,52 @@ class Generator:
                     start = collaboratore['start']
                     end = collaboratore['end']
 
-                    # Get who is being replaced
-                    replaces_id = collaboratore.get('replaces_id')
-                    if replaces_id:
-                        absent_collab = self._get_collaboratore_by_id(replaces_id)
-                        absent_str = f"{absent_collab['cognome']} {absent_collab['nome']}"
-                        subs_for_location.append(f"- {collab_str} entra alle {start} ed esce alle {end} (sostituisce {absent_str})")
+                    # Check if it's a partial substitution (covering morning gap for turnazione)
+                    if 'partial_end' in collaboratore and 'original_luogo_id' in collaboratore:
+                        partial_end = collaboratore['partial_end']
+                        original_luogo = self._get_luogo_by_id(collaboratore['original_luogo_id'])
+                        original_luogo_str = original_luogo['nome']
+                        replaces_id = collaboratore.get('replaces_id')
+                        if replaces_id:
+                            absent_collab = self._get_collaboratore_by_id(replaces_id)
+                            absent_str = f"{absent_collab['cognome']} {absent_collab['nome']}"
+                            subs_for_location.append(f"- {collab_str} entra alle {start}, alle {partial_end} torna a {original_luogo_str}, esce alle {end} (sostituisce {absent_str})")
+                        else:
+                            subs_for_location.append(f"- {collab_str} entra alle {start}, alle {partial_end} torna a {original_luogo_str}, esce alle {end}")
                     else:
-                        subs_for_location.append(f"- {collab_str} entra alle {start} ed esce alle {end}")
+                        # Regular full-day substitution
+                        replaces_id = collaboratore.get('replaces_id')
+                        if replaces_id:
+                            absent_collab = self._get_collaboratore_by_id(replaces_id)
+                            absent_str = f"{absent_collab['cognome']} {absent_collab['nome']}"
+                            subs_for_location.append(f"- {collab_str} entra alle {start} ed esce alle {end} (sostituisce {absent_str})")
+                        else:
+                            subs_for_location.append(f"- {collab_str} entra alle {start} ed esce alle {end}")
 
             # Only add location if it has substitutions
             if subs_for_location:
                 result.append(f"{luogo_str}:")
                 result.extend(subs_for_location)
                 result.append("")  # Empty line between locations
+
+        # Process afternoon substitutes separately
+        if 'afternoon_subs' in schedule:
+            result.append("POMERIGGIO:")
+            for collaboratore in schedule['afternoon_subs']:
+                collab_id = collaboratore['collaboratore_id']
+                collab = self._get_collaboratore_by_id(collab_id)
+                collab_str = f"{collab['cognome']} {collab['nome']}"
+                start = collaboratore['start']
+                end = collaboratore['end']
+
+                replaces_id = collaboratore.get('replaces_id')
+                if replaces_id:
+                    absent_collab = self._get_collaboratore_by_id(replaces_id)
+                    absent_str = f"{absent_collab['cognome']} {absent_collab['nome']}"
+                    result.append(f"- {collab_str} entra alle {start} ed esce alle {end} (sostituisce {absent_str})")
+                else:
+                    result.append(f"- {collab_str} entra alle {start} ed esce alle {end}")
+            result.append("")
 
         return "\n".join(result).strip()
 

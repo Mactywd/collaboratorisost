@@ -5,6 +5,12 @@
             "inizio": "day_start",
             "fine": "day_end",
             "tipo": "assenza"
+        },
+        {
+            "collaboratore_id": 3,
+            "inizio": "day_start",
+            "fine": "day_end",
+            "tipo": "assenza"
         }
     ],
     "present_locations": [
@@ -19,12 +25,6 @@
             "luogo_id": 2,
             "start": "07:54",
             "end": "14:57"
-        },
-        {
-            "collaboratore_id": 3,
-            "luogo_id": 3,
-            "start": "07:30",
-            "end": "14:42"
         },
         {
             "collaboratore_id": 4,

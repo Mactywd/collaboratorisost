@@ -100,6 +100,16 @@
                         <small class="text-muted">Numero di minuti straordinari svolti</small>
                     </div>
 
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="no_overtime_allowed" name="no_overtime_allowed" {% if collaboratore.get('no_overtime_allowed') %}checked{% endif %}>
+                            <label class="form-check-label" for="no_overtime_allowed">
+                                Non può fare straordinari
+                            </label>
+                            <small class="form-text d-block text-muted">Se selezionato, questo collaboratore non verrà mai assegnato a straordinari per la pulizia</small>
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn btn-primary mt-3">Salva Modifiche</button>
                     <a href="{{ url_for('collaboratori') }}" class="btn btn-secondary mt-3">Annulla</a>
                 </form>

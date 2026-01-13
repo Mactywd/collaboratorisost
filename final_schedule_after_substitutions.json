@@ -15,11 +15,6 @@
     ],
     "3": [
         {
-            "collaboratore_id": 3,
-            "start": "07:30",
-            "end": "14:42"
-        },
-        {
             "collaboratore_id": 4,
             "start": "07:54",
             "end": "14:57"
@@ -83,6 +78,14 @@
             "is_substitute": true,
             "replaces_id": 12,
             "original_luogo_id": 10
+        }
+    ],
+    "cleaning_overtime": [
+        {
+            "collaboratore_id": 2,
+            "location_id": 3,
+            "location_name": "Bar e Pendolo",
+            "overtime_minutes": 20
         }
     ]
 }

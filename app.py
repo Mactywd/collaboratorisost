@@ -32,12 +32,14 @@ def luoghi():
         nome = request.form.get('nome')
         descrizione = request.form.get('descrizione')
         min_collaboratori = int(request.form.get('min_collaboratori', 1))
+        no_cleaning_needed = request.form.get('no_cleaning_needed') == 'on'
 
         luogo = {
             'id': len(luoghi_data) + 1,
             'nome': nome,
             'descrizione': descrizione,
-            'min_collaboratori': min_collaboratori
+            'min_collaboratori': min_collaboratori,
+            'no_cleaning_needed': no_cleaning_needed
         }
 
         luoghi_data.append(luogo)
@@ -79,6 +81,7 @@ def collaboratori():
 
         ultima_sostituzione = request.form.get('ultima_sostituzione') or None
         straordinari_svolti = int(request.form.get('straordinari_svolti', 0))
+        no_overtime_allowed = request.form.get('no_overtime_allowed') == 'on'
 
         collaboratore = {
             'id': len(collaboratori_data) + 1,
@@ -89,7 +92,8 @@ def collaboratori():
             'fisso_nel_luogo': fisso_nel_luogo,
             'orari_settimanali': orari_settimanali,
             'ultima_sostituzione': ultima_sostituzione,
-            'straordinari_svolti': straordinari_svolti
+            'straordinari_svolti': straordinari_svolti,
+            'no_overtime_allowed': no_overtime_allowed
         }
 
         collaboratori_data.append(collaboratore)
@@ -142,6 +146,7 @@ def modifica_collaboratore(id):
         # Update new fields
         collaboratore['ultima_sostituzione'] = request.form.get('ultima_sostituzione') or None
         collaboratore['straordinari_svolti'] = int(request.form.get('straordinari_svolti', 0))
+        collaboratore['no_overtime_allowed'] = request.form.get('no_overtime_allowed') == 'on'
 
         save_json('collaboratori.json', collaboratori_data)
         return redirect(url_for('collaboratori'))

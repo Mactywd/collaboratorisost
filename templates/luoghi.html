@@ -30,6 +30,15 @@
                         <input type="number" class="form-control" id="min_collaboratori" name="min_collaboratori" value="1" min="0" required>
                         <small class="text-muted">Numero minimo di collaboratori che devono essere presenti in questo luogo</small>
                     </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="no_cleaning_needed" name="no_cleaning_needed">
+                            <label class="form-check-label" for="no_cleaning_needed">
+                                Non richiede pulizia
+                            </label>
+                            <small class="form-text d-block text-muted">Se selezionato, non verrà assegnato straordinario per la pulizia anche in caso di assenza</small>
+                        </div>
+                    </div>
                     <button type="submit" class="btn btn-primary">Aggiungi Luogo</button>
                 </form>
             </div>
@@ -51,6 +60,14 @@
                             <p class="text-muted mb-2">{{ luogo.descrizione }}</p>
                             {% endif %}
                             <p class="mb-2"><strong>Min. collaboratori:</strong> {{ luogo.get('min_collaboratori', 1) }}</p>
+                            <p class="mb-2">
+                                <strong>Pulizia:</strong>
+                                {% if luogo.get('no_cleaning_needed', False) %}
+                                <span class="badge bg-secondary">Non richiesta</span>
+                                {% else %}
+                                <span class="badge bg-info">Richiesta</span>
+                                {% endif %}
+                            </p>
                             <form method="POST" action="{{ url_for('elimina_luogo', id=luogo.id) }}" class="d-inline">
                                 <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Sei sicuro di voler eliminare questo luogo?')">Elimina</button>
                             </form>

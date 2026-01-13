@@ -8,14 +8,6 @@
     "ora_fine": null
   },
   {
-    "id": 2,
-    "collaboratore_id": 9,
-    "data": "2026-01-22",
-    "tutto_giorno": false,
-    "ora_inizio": "15:47",
-    "ora_fine": "18:49"
-  },
-  {
     "id": 3,
     "collaboratore_id": 8,
     "data": "2025-11-12",
@@ -26,6 +18,14 @@
   {
     "id": 4,
     "collaboratore_id": 12,
+    "data": "2026-01-19",
+    "tutto_giorno": true,
+    "ora_inizio": null,
+    "ora_fine": null
+  },
+  {
+    "id": 4,
+    "collaboratore_id": 3,
     "data": "2026-01-19",
     "tutto_giorno": true,
     "ora_inizio": null,

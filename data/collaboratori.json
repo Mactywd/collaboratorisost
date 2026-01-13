@@ -28,7 +28,8 @@
     },
     "luogo_id": 1,
     "ultima_sostituzione": null,
-    "straordinari_svolti": 0
+    "straordinari_svolti": 0,
+    "no_overtime_allowed": false
   },
   {
     "id": 2,
@@ -59,7 +60,8 @@
     },
     "luogo_id": 2,
     "ultima_sostituzione": null,
-    "straordinari_svolti": 0
+    "straordinari_svolti": 0,
+    "no_overtime_allowed": false
   },
   {
     "id": 3,
@@ -122,7 +124,8 @@
     },
     "luogo_id": 3,
     "ultima_sostituzione": null,
-    "straordinari_svolti": 0
+    "straordinari_svolti": 0,
+    "no_overtime_allowed": false
   },
   {
     "id": 5,
@@ -153,7 +156,8 @@
     },
     "luogo_id": 4,
     "ultima_sostituzione": null,
-    "straordinari_svolti": 0
+    "straordinari_svolti": 0,
+    "no_overtime_allowed": false
   },
   {
     "id": 6,
@@ -184,7 +188,8 @@
     },
     "luogo_id": 4,
     "ultima_sostituzione": null,
-    "straordinari_svolti": 0
+    "straordinari_svolti": 0,
+    "no_overtime_allowed": false
   },
   {
     "id": 7,
@@ -211,7 +216,8 @@
     },
     "luogo_id": 5,
     "ultima_sostituzione": null,
-    "straordinari_svolti": 0
+    "straordinari_svolti": 0,
+    "no_overtime_allowed": false
   },
   {
     "id": 8,
@@ -242,7 +248,8 @@
     },
     "luogo_id": 6,
     "ultima_sostituzione": null,
-    "straordinari_svolti": 0
+    "straordinari_svolti": 0,
+    "no_overtime_allowed": false
   },
   {
     "id": 9,
@@ -273,7 +280,8 @@
     },
     "luogo_id": 6,
     "ultima_sostituzione": null,
-    "straordinari_svolti": 0
+    "straordinari_svolti": 0,
+    "no_overtime_allowed": false
   },
   {
     "id": 10,
@@ -304,7 +312,8 @@
     },
     "luogo_id": 7,
     "ultima_sostituzione": null,
-    "straordinari_svolti": 0
+    "straordinari_svolti": 0,
+    "no_overtime_allowed": false
   },
   {
     "id": 11,
@@ -335,7 +344,8 @@
     },
     "luogo_id": 3,
     "ultima_sostituzione": null,
-    "straordinari_svolti": 0
+    "straordinari_svolti": 0,
+    "no_overtime_allowed": false
   },
   {
     "id": 12,
@@ -362,7 +372,8 @@
     },
     "luogo_id": 9,
     "ultima_sostituzione": null,
-    "straordinari_svolti": 0
+    "straordinari_svolti": 0,
+    "no_overtime_allowed": false
   },
   {
     "id": 13,
@@ -394,6 +405,7 @@
     "luogo_id": 10,
     "luogo_secondario_id": 9,
     "ultima_sostituzione": null,
-    "straordinari_svolti": 0
+    "straordinari_svolti": 0,
+    "no_overtime_allowed": false
   }
 ]

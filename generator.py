@@ -654,8 +654,8 @@ class Generator:
 
         # Process location-based substitutes
         for luogo_id, collaboratori in schedule.items():
-            # Skip afternoon_subs special key
-            if luogo_id == 'afternoon_subs':
+            # Skip special keys
+            if luogo_id in ['afternoon_subs', 'cleaning_overtime']:
                 continue
 
             luogo_str = self._get_luogo_by_id(int(luogo_id))['nome']
@@ -717,10 +717,201 @@ class Generator:
                     result.append(f"- {collab_str} entra alle {start} ed esce alle {end}")
             result.append("")
 
+        # Process cleaning overtime assignments
+        if 'cleaning_overtime' in schedule and schedule['cleaning_overtime']:
+            result.append("STRAORDINARI PER PULIZIA:")
+            for cleaning in schedule['cleaning_overtime']:
+                collab_id = cleaning['collaboratore_id']
+                collab = self._get_collaboratore_by_id(collab_id)
+                collab_str = f"{collab['cognome']} {collab['nome']}"
+                location_name = cleaning['location_name']
+                overtime_minutes = cleaning['overtime_minutes']
+                result.append(f"- {collab_str}: {overtime_minutes} minuti per pulizia di {location_name}")
+            result.append("")
+
         return "\n".join(result).strip()
+
+    def assign_cleaning_overtime(self, schedule, weekday):
+        """
+        Assigns cleaning overtime to collaborators when someone is missing from a location.
+        Each location has N people who normally work there, and they all clean at the end of the day.
+        If someone is missing (even if minimum coverage is met), someone else needs to do 20 minutes
+        of cleaning overtime.
+        """
+        # Initialize cleaning_overtime list if not exists
+        if 'cleaning_overtime' not in schedule:
+            schedule['cleaning_overtime'] = []
+
+        # Track who has already been assigned cleaning overtime today (max 20 minutes per day)
+        assigned_today = set()
+
+        # For each location, count how many people normally work there
+        locations_normal_count = {}
+        for collaboratore in self.collaboratori:
+            luogo_id = collaboratore.get('luogo_id')
+            if luogo_id is not None:
+                if luogo_id not in locations_normal_count:
+                    locations_normal_count[luogo_id] = 0
+                locations_normal_count[luogo_id] += 1
+
+        # For each location, count how many people are present at the end of the day
+        for luogo_id, normal_count in locations_normal_count.items():
+            # Check if this location needs cleaning
+            luogo = self._get_luogo_by_id(luogo_id)
+            if not luogo:
+                continue
+
+            if luogo.get('no_cleaning_needed', False):
+                print(f"Location {luogo['nome']} doesn't need cleaning, skipping")
+                continue
+
+            # Count people present at the end of day at this location
+            present_count = self._count_present_at_end_of_day(schedule, luogo_id)
+
+            missing_count = normal_count - present_count
+
+            if missing_count > 0:
+                print(f"Location {luogo['nome']} is missing {missing_count} people for cleaning")
+
+                # For each missing person, assign cleaning overtime
+                for _ in range(missing_count):
+                    overtime_person = self._find_cleaning_overtime_candidate(schedule, weekday, assigned_today)
+
+                    if overtime_person:
+                        print(f"Assigning cleaning overtime to {overtime_person['nome']} {overtime_person['cognome']} for location {luogo['nome']}")
+
+                        # Add 20 minutes to their overtime
+                        overtime_person['straordinari_svolti'] += 20
+
+                        # Mark this person as assigned today (they can't be assigned again)
+                        assigned_today.add(overtime_person['id'])
+
+                        # Record the cleaning overtime assignment
+                        schedule['cleaning_overtime'].append({
+                            'collaboratore_id': overtime_person['id'],
+                            'location_id': luogo_id,
+                            'location_name': luogo['nome'],
+                            'overtime_minutes': 20
+                        })
+                    else:
+                        print(f"WARNING: No one available for cleaning overtime at location {luogo['nome']}")
+
+        # Save updated collaboratori data with new straordinari_svolti values
+        with open('data/collaboratori.json', 'w') as f:
+            json.dump(self.collaboratori, f, indent=2)
+
+        return schedule
+
+    def _count_present_at_end_of_day(self, schedule, luogo_id):
+        """
+        Count how many people are ACTUALLY present at this location at the end of the day.
+
+        This includes:
+        - People normally assigned there who are present
+        - Regular substitutes working at this location
+        - Afternoon substitutes working at this location
+        - People with turnazione (they come late but leave at normal time, so they can clean)
+
+        The key principle: whoever is physically at a location at end of day can clean that location.
+        """
+        count = 0
+        present_ids = set()
+
+        # First, identify who is doing afternoon shifts elsewhere
+        afternoon_sub_ids = set()
+        if 'afternoon_subs' in schedule:
+            for assignment in schedule['afternoon_subs']:
+                afternoon_sub_ids.add(assignment['collaboratore_id'])
+
+        # Count people in the regular schedule at this location
+        if luogo_id in schedule:
+            for assignment in schedule[luogo_id]:
+                collab_id = assignment['collaboratore_id']
+
+                # Skip if this person is doing afternoon shift elsewhere
+                # (they won't be here at end of day)
+                if collab_id in afternoon_sub_ids:
+                    collab = self._get_collaboratore_by_id(collab_id)
+                    if collab and collab.get('luogo_id') == luogo_id:
+                        # This person normally works here but is doing afternoon elsewhere
+                        continue
+
+                # Anyone assigned to this location at end of day can clean
+                if 'end' in assignment:
+                    present_ids.add(collab_id)
+                    count += 1
+
+        # Count afternoon substitutes at this location
+        if 'afternoon_subs' in schedule:
+            for assignment in schedule['afternoon_subs']:
+                # Check if this afternoon sub is assigned to this location
+                # Afternoon subs replace someone, so we need to find which location
+                replaces_id = assignment.get('replaces_id')
+                if replaces_id:
+                    replaced_collab = self._get_collaboratore_by_id(replaces_id)
+                    if replaced_collab and replaced_collab.get('luogo_id') == luogo_id:
+                        # This afternoon sub is covering this location
+                        collab_id = assignment['collaboratore_id']
+                        if collab_id not in present_ids:
+                            count += 1
+
+        return count
+
+    def _find_cleaning_overtime_candidate(self, schedule, weekday, assigned_today):
+        """
+        Find the best candidate for cleaning overtime.
+        Criteria:
+        - Must be present that day
+        - Must not have no_overtime_allowed flag set
+        - Must not have already been assigned cleaning overtime today (max 20 min/day)
+        - Select the one with least straordinari_svolti
+        """
+        candidates = []
+
+        # Get all collaborators who are present that day
+        present_ids = set()
+        for luogo_id, assignments in schedule.items():
+            if luogo_id == 'afternoon_subs' or luogo_id == 'cleaning_overtime':
+                continue
+            for assignment in assignments:
+                present_ids.add(assignment['collaboratore_id'])
+
+        # Filter candidates
+        for collaboratore in self.collaboratori:
+            # Must be present that day
+            if collaboratore['id'] not in present_ids:
+                continue
+
+            # Must be able to do overtime
+            if collaboratore.get('no_overtime_allowed', False):
+                continue
+
+            # Must not have already been assigned cleaning overtime today
+            if collaboratore['id'] in assigned_today:
+                continue
+
+            # Must have working hours on this day
+            if weekday not in collaboratore.get('orari_settimanali', {}):
+                continue
+
+            candidates.append(collaboratore)
+
+        if not candidates:
+            return None
+
+        # Select the one with least overtime
+        min_overtime = min(c.get('straordinari_svolti', 0) for c in candidates)
+        for candidate in candidates:
+            if candidate.get('straordinari_svolti', 0) == min_overtime:
+                return candidate
+
+        return None
 
     def generate(self, day, month, year, weekday):
         schedule = self.generate_schedule(day, month, year, weekday)
+
+        # Assign cleaning overtime if needed
+        schedule = self.assign_cleaning_overtime(schedule, weekday)
 
         with open("final_schedule_after_substitutions.json", "w") as final_file:
             json.dump(schedule, final_file, indent=4)

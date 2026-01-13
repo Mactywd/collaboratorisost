@@ -15,11 +15,6 @@
     ],
     "3": [
         {
-            "collaboratore_id": 3,
-            "start": "07:30",
-            "end": "14:42"
-        },
-        {
             "collaboratore_id": 4,
             "start": "07:54",
             "end": "14:57"

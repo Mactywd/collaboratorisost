@@ -3,54 +3,63 @@
     "id": 1,
     "nome": "Bandini 1",
     "descrizione": "",
-    "min_collaboratori": 1
+    "min_collaboratori": 1,
+    "no_cleaning_needed": false
   },
   {
     "id": 2,
     "nome": "Bandini 2",
     "descrizione": "",
-    "min_collaboratori": 1
+    "min_collaboratori": 1,
+    "no_cleaning_needed": false
   },
   {
     "id": 3,
     "nome": "Bar e Pendolo",
     "descrizione": "",
-    "min_collaboratori": 2
+    "min_collaboratori": 2,
+    "no_cleaning_needed": false
   },
   {
     "id": 4,
     "nome": "Ingresso",
     "descrizione": "",
-    "min_collaboratori": 1
+    "min_collaboratori": 1,
+    "no_cleaning_needed": false
   },
   {
     "id": 5,
     "nome": "Laboratori e Aula Magna",
     "descrizione": "",
-    "min_collaboratori": 0
+    "min_collaboratori": 0,
+    "no_cleaning_needed": true
   },
   {
     "id": 6,
     "nome": "Laboratori",
     "descrizione": "",
-    "min_collaboratori": 1
+    "min_collaboratori": 1,
+    "no_cleaning_needed": false
   },
   {
     "id": 7,
     "nome": "Palestra",
     "descrizione": "",
-    "min_collaboratori": 0
+    "min_collaboratori": 0,
+    "no_cleaning_needed": true
   },
   {
     "id": 9,
     "nome": "Portineria",
     "descrizione": "",
-    "min_collaboratori": 1
+    "min_collaboratori": 1,
+    "no_cleaning_needed": false
   },
   {
     "id": 10,
     "nome": "Segreteria",
     "descrizione": "",
-    "min_collaboratori": 0
+    "min_collaboratori": 0,
+    "no_cleaning_needed": true
   }
 ]

@@ -1,16 +1,16 @@
 {
     "absences": [
         {
-            "collaboratore_id": 2,
+            "collaboratore_id": 3,
             "inizio": "day_start",
             "fine": "day_end",
-            "tipo": "assenza"
+            "tipo": "copertura_fissa"
         },
         {
-            "collaboratore_id": 2,
+            "collaboratore_id": 7,
             "inizio": "day_start",
-            "fine": "10:48",
-            "tipo": "turnazione"
+            "fine": "day_end",
+            "tipo": "copertura_fissa"
         }
     ],
     "present_locations": [
@@ -21,8 +21,14 @@
             "end": "14:57"
         },
         {
+            "collaboratore_id": 2,
+            "luogo_id": 2,
+            "start": "07:54",
+            "end": "14:57"
+        },
+        {
             "collaboratore_id": 3,
-            "luogo_id": 3,
+            "luogo_id": 9,
             "start": "07:30",
             "end": "14:42"
         },
@@ -45,6 +51,12 @@
             "end": "14:57"
         },
         {
+            "collaboratore_id": 7,
+            "luogo_id": 3,
+            "start": "08:30",
+            "end": "14:30"
+        },
+        {
             "collaboratore_id": 8,
             "luogo_id": 6,
             "start": "07:54",
@@ -59,20 +71,14 @@
         {
             "collaboratore_id": 10,
             "luogo_id": 7,
-            "start": "10:00",
-            "end": "15:00"
+            "start": "14:00",
+            "end": "18:00"
         },
         {
             "collaboratore_id": 11,
             "luogo_id": 3,
             "start": "07:54",
             "end": "14:57"
-        },
-        {
-            "collaboratore_id": 12,
-            "luogo_id": 9,
-            "start": "08:00",
-            "end": "14:00"
         },
         {
             "collaboratore_id": 13,

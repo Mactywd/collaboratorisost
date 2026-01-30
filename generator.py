@@ -355,16 +355,14 @@ class Generator:
         return None, None
 
     def _find_absent_afternoon_collaborator(self, day, month, year, weekday):
-        '''Find which collaborator is absent and was supposed to cover afternoon shift.'''
+        '''Find which collaborator is absent and was supposed to work afternoon (start > 9:00).'''
         # Check if there's an afternoon shift today
         if weekday not in self.orari_pomeriggio or not self.orari_pomeriggio[weekday].get('attivo'):
             return None
 
-        afternoon_end = self.orari_pomeriggio[weekday]['ora_fine']
-        afternoon_end_hour, afternoon_end_minute = map(int, afternoon_end.split(':'))
-        afternoon_end_time = time(afternoon_end_hour, afternoon_end_minute)
+        afternoon_start_threshold = time(9, 0)
 
-        # Find collaborators who are absent today and normally work until afternoon
+        # Find collaborators who are absent today and normally start after 9:00
         for assenza in self.assenze:
             assenza_date = assenza['data']
             assenza_day = int(assenza_date.split('-')[2])
@@ -374,45 +372,54 @@ class Generator:
             if (assenza_day == day and assenza_month == month and assenza_year == year):
                 collaboratore = self._get_collaboratore_by_id(assenza['collaboratore_id'])
                 if collaboratore and weekday in collaboratore['orari_settimanali']:
-                    # Check if they normally work until afternoon end time
-                    end_str = collaboratore['orari_settimanali'][weekday]['fine']
-                    end_hour, end_minute = map(int, end_str.split(':'))
-                    end_time = time(end_hour, end_minute)
+                    # Check if they normally start after 9:00
+                    start_str = collaboratore['orari_settimanali'][weekday]['inizio']
+                    start_hour, start_minute = map(int, start_str.split(':'))
+                    start_time = time(start_hour, start_minute)
 
-                    if end_time >= afternoon_end_time:
+                    if start_time > afternoon_start_threshold:
                         return collaboratore
 
-        # Also check if someone with a turnazione covering afternoon is absent
+        # Also check if someone with a turnazione (shifted hours) covering afternoon is absent
         str_month = self._convert_month('name_from_index', month_index=month)
         for turnazione in self.turnazioni:
             if (turnazione['giorno_settimana'] == weekday and
                 turnazione['mese'] == str_month and
                 turnazione['anno'] == year):
-                # Check if this person is absent
-                for assenza in self.assenze:
-                    if assenza['collaboratore_id'] == turnazione['collaboratore_id']:
-                        assenza_date = assenza['data']
-                        assenza_day = int(assenza_date.split('-')[2])
-                        assenza_month = int(assenza_date.split('-')[1])
-                        assenza_year = int(assenza_date.split('-')[0])
-                        if (assenza_day == day and assenza_month == month and assenza_year == year):
-                            return self._get_collaboratore_by_id(turnazione['collaboratore_id'])
+                # Check if their alternative start time is after 9:00
+                alt_start_str = turnazione['ora_ingresso_alternativa']
+                alt_start_hour, alt_start_minute = map(int, alt_start_str.split(':'))
+                alt_start_time = time(alt_start_hour, alt_start_minute)
+
+                if alt_start_time > afternoon_start_threshold:
+                    # Check if this person is absent
+                    for assenza in self.assenze:
+                        if assenza['collaboratore_id'] == turnazione['collaboratore_id']:
+                            assenza_date = assenza['data']
+                            assenza_day = int(assenza_date.split('-')[2])
+                            assenza_month = int(assenza_date.split('-')[1])
+                            assenza_year = int(assenza_date.split('-')[0])
+                            if (assenza_day == day and assenza_month == month and assenza_year == year):
+                                return self._get_collaboratore_by_id(turnazione['collaboratore_id'])
 
         return None
 
-    def _count_afternoon_coverage(self, schedule, afternoon_end_str):
-        '''Count how many collaborators work until afternoon end time across all locations.'''
-        afternoon_end_hour, afternoon_end_minute = map(int, afternoon_end_str.split(':'))
-        afternoon_end_time = time(afternoon_end_hour, afternoon_end_minute)
+    def _count_afternoon_coverage(self, schedule):
+        '''Count how many collaborators start work after 9:00 AM across all locations.'''
+        afternoon_start_threshold = time(9, 0)
 
         count = 0
-        for collaboratori in schedule.values():
-            for collaboratore in collaboratori:
-                end_time_str = collaboratore['end']
-                end_hour, end_minute = map(int, end_time_str.split(':'))
-                end_time = time(end_hour, end_minute)
+        for luogo_id, collaboratori in schedule.items():
+            # Skip special schedule keys that aren't actual locations
+            if luogo_id in ['afternoon_subs', 'cleaning_overtime']:
+                continue
 
-                if end_time >= afternoon_end_time:
+            for collaboratore in collaboratori:
+                start_time_str = collaboratore['start']
+                start_hour, start_minute = map(int, start_time_str.split(':'))
+                start_time = time(start_hour, start_minute)
+
+                if start_time > afternoon_start_threshold:
                     count += 1
 
         return count
@@ -539,9 +546,9 @@ class Generator:
             afternoon_end = self.orari_pomeriggio[weekday]['ora_fine']
             required_afternoon = self.orari_pomeriggio[weekday]['num_collaboratori']
 
-            # Count how many collaborators work until afternoon end time across all locations
-            afternoon_count = self._count_afternoon_coverage(schedule, afternoon_end)
-            print(f"Afternoon coverage: {afternoon_count}/{required_afternoon} until {afternoon_end}")
+            # Count how many collaborators start work after 9:00 AM across all locations
+            afternoon_count = self._count_afternoon_coverage(schedule)
+            print(f"Afternoon coverage: {afternoon_count}/{required_afternoon} (start after 9:00)")
 
             while afternoon_count < required_afternoon:
                 substitute = self.find_substitute(schedule, "substitute", needed_luogo_id=None)

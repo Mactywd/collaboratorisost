@@ -6,16 +6,30 @@
             "end": "14:57"
         }
     ],
-    "3": [
+    "2": [
+        {
+            "collaboratore_id": 2,
+            "start": "07:54",
+            "end": "14:57"
+        }
+    ],
+    "9": [
         {
             "collaboratore_id": 3,
             "start": "07:30",
             "end": "14:42"
-        },
+        }
+    ],
+    "3": [
         {
             "collaboratore_id": 4,
             "start": "07:54",
             "end": "14:57"
+        },
+        {
+            "collaboratore_id": 7,
+            "start": "08:30",
+            "end": "14:30"
         },
         {
             "collaboratore_id": 11,
@@ -50,15 +64,8 @@
     "7": [
         {
             "collaboratore_id": 10,
-            "start": "10:00",
-            "end": "15:00"
-        }
-    ],
-    "9": [
-        {
-            "collaboratore_id": 12,
-            "start": "08:00",
-            "end": "14:00"
+            "start": "14:00",
+            "end": "18:00"
         }
     ],
     "10": [
@@ -68,33 +75,37 @@
             "end": "18:00"
         }
     ],
-    "2": [
-        {
-            "collaboratore_id": 11,
-            "start": "07:54",
-            "end": "14:57",
-            "partial_end": "10:48",
-            "original_luogo_id": 3,
-            "is_substitute": true,
-            "replaces_id": 2
-        }
-    ],
     "afternoon_subs": [
+        {
+            "collaboratore_id": 8,
+            "start": "10:57",
+            "end": "18:00",
+            "is_substitute": true,
+            "is_afternoon_sub": true,
+            "replaces_id": null,
+            "original_luogo_id": 6
+        },
         {
             "collaboratore_id": 6,
             "start": "10:57",
             "end": "18:00",
             "is_substitute": true,
             "is_afternoon_sub": true,
-            "replaces_id": 2,
+            "replaces_id": null,
             "original_luogo_id": 4
         }
     ],
     "cleaning_overtime": [
         {
-            "collaboratore_id": 3,
+            "collaboratore_id": 2,
             "location_id": 4,
             "location_name": "Ingresso",
+            "overtime_minutes": 20
+        },
+        {
+            "collaboratore_id": 3,
+            "location_id": 6,
+            "location_name": "Laboratori",
             "overtime_minutes": 20
         }
     ]

@@ -1,24 +1,31 @@
 import json
+import os
 from datetime import datetime, time
 import random
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class Generator:
     def __init__(self):
         # Load JSON to memory
-        with open('data/assenze.json', 'r') as f:
-            self.assenze = json.load(f)
-        with open('data/turnazioni.json', 'r') as f:
-            self.turnazioni = json.load(f)
-        with open('data/coperture_fisse.json', 'r') as f:
-            self.coperture_fisse = json.load(f)
-        with open('data/collaboratori.json', 'r') as f:
-            self.collaboratori = json.load(f)
-        with open('data/luoghi.json', 'r') as f:
-            self.luoghi = json.load(f)
-        with open('data/orari_pomeriggio.json', 'r') as f:
-            self.orari_pomeriggio = json.load(f)
-        with open('data/sub_order.json', 'r') as f:
-            self.sub_order = json.load(f)
+        data_files = {
+            'assenze': 'data/assenze.json',
+            'turnazioni': 'data/turnazioni.json',
+            'coperture_fisse': 'data/coperture_fisse.json',
+            'collaboratori': 'data/collaboratori.json',
+            'luoghi': 'data/luoghi.json',
+            'orari_pomeriggio': 'data/orari_pomeriggio.json',
+            'sub_order': 'data/sub_order.json',
+        }
+        for attr, rel_path in data_files.items():
+            path = os.path.join(BASE_DIR, rel_path)
+            try:
+                with open(path, 'r') as f:
+                    setattr(self, attr, json.load(f))
+            except FileNotFoundError:
+                raise FileNotFoundError(f"File dati mancante: {path}")
+            except json.JSONDecodeError as e:
+                raise ValueError(f"JSON non valido in {path}: {e}")
 
     def _get_collaboratore_by_id(self, id):
         for collaboratore in self.collaboratori:
@@ -170,7 +177,7 @@ class Generator:
             if not available_dates:
                 return None
 
-            last_substitute = max(available_dates)
+            last_substitute = min(available_dates)
             print("Last substitute date to beat:", last_substitute)
             for collaboratore in self.collaboratori:
                 if (collaboratore["id"] in available_collaboratori and
@@ -608,13 +615,21 @@ class Generator:
     def parse_result(self, schedule, weekday):
         result = {}
         for luogo_id, collaboratori in schedule.items():
+            # Skip special keys that are not location IDs
+            if luogo_id in ['afternoon_subs', 'cleaning_overtime']:
+                continue
             # Get string of luogo
-            luogo_str = self._get_luogo_by_id(int(luogo_id))['nome']
+            luogo = self._get_luogo_by_id(int(luogo_id))
+            if not luogo:
+                continue
+            luogo_str = luogo['nome']
             if luogo_str not in result:
                 result[luogo_str] = {}
             for collaboratore in collaboratori:
                 collab_id = collaboratore['collaboratore_id']
                 collab = self._get_collaboratore_by_id(collab_id)
+                if not collab:
+                    continue
                 collab_str = f"{collab['cognome']} {collab['nome']}"
                 if not "original_luogo_id" in collaboratore or len(collaboratori) == 1:
                     result[luogo_str][collab_str] = {
@@ -631,19 +646,29 @@ class Generator:
                     for other_collaboratore in [c for c in collaboratori if c != collaboratore]:
                         other_start = other_collaboratore['start']
                         # Check if it is greater than their usual start time
-                        other_usual_start = self._get_collaboratore_by_id(other_collaboratore['collaboratore_id'])['orari_settimanali'].get(weekday).get('inizio')
+                        other_collab = self._get_collaboratore_by_id(other_collaboratore['collaboratore_id'])
+                        if not other_collab:
+                            continue
+                        other_weekday_schedule = other_collab['orari_settimanali'].get(weekday)
+                        if not other_weekday_schedule:
+                            continue
+                        other_usual_start = other_weekday_schedule.get('inizio')
+                        if not other_usual_start:
+                            continue
                         # Convert time strings to datetime objects for comparison
                         other_start_hour, other_start_minute = map(int, other_start.split(':'))
                         other_start_time = time(other_start_hour, other_start_minute)
-                        
+
                         other_usual_start_hour, other_usual_start_minute = map(int, other_usual_start.split(':'))
                         other_usual_start_time = time(other_usual_start_hour, other_usual_start_minute)
-                        
+
                         if other_start_time > other_usual_start_time:
+                            original_luogo = self._get_luogo_by_id(collaboratore['original_luogo_id'])
+                            move_back_name = original_luogo['nome'] if original_luogo else 'Sconosciuto'
                             result[luogo_str][collab_str] = {
                                 'start': collaboratore['start'],
                                 'partial_end': other_start,
-                                'move_back_to': self._get_luogo_by_id(collaboratore['original_luogo_id'])['nome'],
+                                'move_back_to': move_back_name,
                                 'end': collaboratore['end']
                             }
                         else:
@@ -665,7 +690,10 @@ class Generator:
             if luogo_id in ['afternoon_subs', 'cleaning_overtime']:
                 continue
 
-            luogo_str = self._get_luogo_by_id(int(luogo_id))['nome']
+            luogo = self._get_luogo_by_id(int(luogo_id))
+            if not luogo:
+                continue
+            luogo_str = luogo['nome']
             subs_for_location = []
 
             for collaboratore in collaboratori:
@@ -673,6 +701,8 @@ class Generator:
                 if collaboratore.get('is_substitute', False):
                     collab_id = collaboratore['collaboratore_id']
                     collab = self._get_collaboratore_by_id(collab_id)
+                    if not collab:
+                        continue
                     collab_str = f"{collab['cognome']} {collab['nome']}"
                     start = collaboratore['start']
                     end = collaboratore['end']
@@ -681,11 +711,11 @@ class Generator:
                     if 'partial_end' in collaboratore and 'original_luogo_id' in collaboratore:
                         partial_end = collaboratore['partial_end']
                         original_luogo = self._get_luogo_by_id(collaboratore['original_luogo_id'])
-                        original_luogo_str = original_luogo['nome']
+                        original_luogo_str = original_luogo['nome'] if original_luogo else 'Sconosciuto'
                         replaces_id = collaboratore.get('replaces_id')
                         if replaces_id:
                             absent_collab = self._get_collaboratore_by_id(replaces_id)
-                            absent_str = f"{absent_collab['cognome']} {absent_collab['nome']}"
+                            absent_str = f"{absent_collab['cognome']} {absent_collab['nome']}" if absent_collab else 'Sconosciuto'
                             subs_for_location.append(f"- {collab_str} entra alle {start}, alle {partial_end} torna a {original_luogo_str}, esce alle {end} (sostituisce {absent_str})")
                         else:
                             subs_for_location.append(f"- {collab_str} entra alle {start}, alle {partial_end} torna a {original_luogo_str}, esce alle {end}")
@@ -694,7 +724,7 @@ class Generator:
                         replaces_id = collaboratore.get('replaces_id')
                         if replaces_id:
                             absent_collab = self._get_collaboratore_by_id(replaces_id)
-                            absent_str = f"{absent_collab['cognome']} {absent_collab['nome']}"
+                            absent_str = f"{absent_collab['cognome']} {absent_collab['nome']}" if absent_collab else 'Sconosciuto'
                             subs_for_location.append(f"- {collab_str} entra alle {start} ed esce alle {end} (sostituisce {absent_str})")
                         else:
                             subs_for_location.append(f"- {collab_str} entra alle {start} ed esce alle {end}")
@@ -711,6 +741,8 @@ class Generator:
             for collaboratore in schedule['afternoon_subs']:
                 collab_id = collaboratore['collaboratore_id']
                 collab = self._get_collaboratore_by_id(collab_id)
+                if not collab:
+                    continue
                 collab_str = f"{collab['cognome']} {collab['nome']}"
                 start = collaboratore['start']
                 end = collaboratore['end']
@@ -718,7 +750,7 @@ class Generator:
                 replaces_id = collaboratore.get('replaces_id')
                 if replaces_id:
                     absent_collab = self._get_collaboratore_by_id(replaces_id)
-                    absent_str = f"{absent_collab['cognome']} {absent_collab['nome']}"
+                    absent_str = f"{absent_collab['cognome']} {absent_collab['nome']}" if absent_collab else 'Sconosciuto'
                     result.append(f"- {collab_str} entra alle {start} ed esce alle {end} (sostituisce {absent_str})")
                 else:
                     result.append(f"- {collab_str} entra alle {start} ed esce alle {end}")
@@ -730,6 +762,8 @@ class Generator:
             for cleaning in schedule['cleaning_overtime']:
                 collab_id = cleaning['collaboratore_id']
                 collab = self._get_collaboratore_by_id(collab_id)
+                if not collab:
+                    continue
                 collab_str = f"{collab['cognome']} {collab['nome']}"
                 location_name = cleaning['location_name']
                 overtime_minutes = cleaning['overtime_minutes']
